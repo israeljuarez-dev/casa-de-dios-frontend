@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@theme {
+  /* ===== Colores primarios (verde militar) ===== */
+  --color-primary: rgba(83, 97, 56, 1);                    /* #536138 */
+  --color-primary-container: rgba(107, 122, 79, 1);        /* #6b7a4f */
+  --color-primary-fixed: rgba(216, 233, 181, 1);           /* #d8e9b5 */
+  --color-primary-fixed-dim: rgba(188, 205, 155, 1);       /* #bccd9b */
+  --color-on-primary: rgba(255, 255, 255, 1);              /* #ffffff */
+  --color-on-primary-fixed: rgba(19, 31, 1, 1);            /* #131f01 */
+  --color-on-primary-fixed-variant: rgba(62, 75, 37, 1);   /* #3e4b25 */
+  --color-on-primary-container: rgba(250, 255, 232, 1);    /* #faffe8 */
+
+  /* ===== Colores secundarios (celeste) ===== */
+  --color-secondary: rgba(65, 98, 118, 1);                 /* #416276 */
+  --color-secondary-container: rgba(193, 229, 252, 1);     /* #c1e5fc */
+  --color-secondary-fixed: rgba(196, 231, 255, 1);         /* #c4e7ff */
+  --color-secondary-fixed-dim: rgba(168, 203, 226, 1);     /* #a8cbe2 */
+  --color-on-secondary: rgba(255, 255, 255, 1);            /* #ffffff */
+  --color-on-secondary-container: rgba(69, 103, 123, 1);   /* #45677b */
+  --color-on-secondary-fixed: rgba(0, 30, 44, 1);          /* #001e2c */
+
+  /* ===== Terciarios ===== */
+  --color-tertiary: rgba(87, 95, 70, 1);                   /* #575f46 */
+  --color-tertiary-container: rgba(111, 120, 93, 1);       /* #6f785d */
+  --color-tertiary-fixed: rgba(221, 230, 198, 1);          /* #dde6c6 */
+  --color-tertiary-fixed-dim: rgba(193, 202, 171, 1);      /* #c1caab */
+  --color-on-tertiary: rgba(255, 255, 255, 1);             /* #ffffff */
+  --color-on-tertiary-container: rgba(250, 255, 232, 1);   /* #faffe8 */
+  --color-on-tertiary-fixed: rgba(23, 30, 10, 1);          /* #171e0a */
+
+  /* ===== Superficies y fondos ===== */
+  --color-background: rgba(249, 250, 247, 1);              /* #f9faf7 */
+  --color-surface: rgba(249, 250, 247, 1);                 /* #f9faf7 */
+  --color-surface-bright: rgba(249, 250, 247, 1);          /* #f9faf7 */
+  --color-surface-dim: rgba(217, 218, 216, 1);             /* #d9dad8 */
+  --color-surface-variant: rgba(226, 227, 224, 1);         /* #e2e3e0 */
+  --color-surface-container-lowest: rgba(255, 255, 255, 1);/* #ffffff */
+  --color-surface-container-low: rgba(243, 244, 241, 1);   /* #f3f4f1 */
+  --color-surface-container: rgba(237, 238, 235, 1);       /* #edeeeb */
+  --color-surface-container-high: rgba(231, 232, 230, 1);  /* #e7e8e6 */
+  --color-surface-container-highest: rgba(226, 227, 224, 1);/* #e2e3e0 */
+  --color-on-surface: rgba(25, 28, 27, 1);                 /* #191c1b */
+  --color-on-surface-variant: rgba(69, 72, 62, 1);         /* #45483e */
+  --color-on-background: rgba(25, 28, 27, 1);              /* #191c1b */
+
+  /* ===== Bordes ===== */
+  --color-outline: rgba(118, 120, 109, 1);                 /* #76786d */
+  --color-outline-variant: rgba(198, 200, 186, 1);         /* #c6c8ba */
+
+  /* ===== Estados (error / éxito) ===== */
+  --color-error: rgba(186, 26, 26, 1);                     /* #ba1a1a */
+  --color-error-container: rgba(255, 218, 214, 1);         /* #ffdad6 */
+  --color-on-error: rgba(255, 255, 255, 1);                /* #ffffff */
+  --color-on-error-container: rgba(147, 0, 10, 1);         /* #93000a */
+  --color-error-soft: rgba(217, 123, 123, 1);              /* #d97b7b — rojo suave del login y modal de eliminar */
+  --color-success-soft: rgba(127, 163, 126, 1);            /* #7fa37e — verde suave del "¡Listo!" */
+
+  /* ===== Tipografía ===== */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --text-display: 36px;
+  --text-display--line-height: 44px;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+
+  --text-headline-lg: 28px;
+  --text-headline-lg--line-height: 34px;
+  --text-headline-lg--letter-spacing: -0.01em;
+  --text-headline-lg--font-weight: 600;
+
+  --text-headline-md: 22px;
+  --text-headline-md--line-height: 28px;
+  --text-headline-md--font-weight: 600;
+
+  --text-title-lg: 18px;
+  --text-title-lg--line-height: 24px;
+  --text-title-lg--font-weight: 600;
+
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+
+  --text-label-md: 12px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--letter-spacing: 0.01em;
+  --text-label-md--font-weight: 500;
+
+  /* ===== Espaciados propios del layout ===== */
+  --spacing-sidebar: 260px;
+  --spacing-page: 2rem;
+}
+
+/* Estilos base globales */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  vertical-align: middle;
+}

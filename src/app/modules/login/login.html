@@ -1,0 +1,215 @@
+<div
+  class="
+    flex items-center justify-center
+    min-h-screen
+    p-4
+    bg-background
+  "
+>
+  <main
+    class="
+      flex flex-col md:flex-row
+      w-full max-w-275 min-h-150 h-full
+      bg-surface-container-lowest
+      rounded-xl
+      shadow-sm
+      overflow-hidden
+    "
+  >
+  
+    <!-- Columna izquierda: ilustración -->
+    <div
+      class="
+        hidden md:flex relative md:w-1/2 flex-col justify-between
+        bg-primary-fixed
+        p-12
+        overflow-hidden
+      "
+    >
+      <div class="absolute top-0 right-0 -mt-32 -mr-32 w-64 h-64 bg-primary/10 rounded-full"></div>
+      <div class="absolute bottom-0 left-0 -mb-24 -ml-24 w-48 h-48 bg-primary/10 rounded-full"></div>
+
+      <div class="relative z-10 flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 bg-primary rounded-lg text-white">
+          <span class="material-symbols-outlined">church</span>
+        </div>
+        <span class="text-lg font-semibold text-primary">Casa de Dios</span>
+      </div>
+
+      <div class="relative z-10 space-y-6">
+        <h1 class="text-4xl font-bold leading-tight text-primary">
+          Gestión con propósito y paz.
+        </h1>
+        <p class="max-w-md text-base text-on-surface-variant">
+          Bienvenido al portal de administración. Accede a las herramientas de liderazgo,
+          finanzas y membresía en un entorno seguro y profesional.
+        </p>
+        <div class="w-full h-64 rounded-xl shadow-sm overflow-hidden">
+          <img
+            src="URL_DE_TU_IMAGEN_AQUI"
+            alt="Interior de una iglesia moderna"
+            class="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+
+      <div class="relative z-10 pt-8 border-t border-outline-variant">
+        <p class="text-xs text-on-primary-fixed-variant">© 2026 Casa de Dios Management System</p>
+      </div>
+    </div>
+
+    <!-- Columna derecha: formulario -->
+    <div
+      class="
+        w-full md:w-1/2 flex flex-col justify-center
+        p-8 md:p-16
+        bg-white
+      "
+    >
+      <div class="w-full max-w-md mx-auto">
+
+        <div class="md:hidden flex items-center gap-3 mb-8">
+          <div class="flex items-center justify-center w-10 h-10 bg-primary rounded-lg text-white">
+            <span class="material-symbols-outlined">church</span>
+          </div>
+          <span class="text-lg font-semibold text-primary">Casa de Dios</span>
+        </div>
+
+        <div class="mb-10">
+          <h2 class="text-2xl font-semibold text-on-surface mb-2">Iniciar Sesión</h2>
+          <p class="text-sm text-on-surface-variant">Por favor ingresa tus credenciales para continuar.</p>
+        </div>
+
+        <form class="space-y-6" (ngSubmit)="onSubmit()">
+
+          <!-- Campo: usuario o correo -->
+          <div>
+            <label for="usernameOrEmail" class="block mb-2 text-xs font-medium text-on-surface-variant">
+              Correo Electrónico o Usuario
+            </label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
+                mail
+              </span>
+              <input
+                id="usernameOrEmail"
+                name="usernameOrEmail"
+                type="text"
+                placeholder="ejemplo@correo.com"
+                [ngModel]="usernameOrEmail()"
+                (ngModelChange)="usernameOrEmail.set($event)"
+                class="
+                  w-full
+                  pl-10 pr-4 py-3
+                  bg-surface-container-lowest border border-outline-variant
+                  rounded-lg
+                  text-sm text-on-surface
+                  transition-all
+                  focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+                "
+              />
+            </div>
+          </div>
+
+          <!-- Campo: contraseña, con toggle de visibilidad y 2 estados visuales -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label for="password" class="text-xs font-medium text-on-surface-variant">Contraseña</label>
+              <a href="#" class="text-xs text-primary hover:underline">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
+                lock
+              </span>
+              <input
+                id="password"
+                name="password"
+                [type]="isPasswordVisible() ? 'text' : 'password'"
+                placeholder="••••••••"
+                [ngModel]="password()"
+                (ngModelChange)="password.set($event)"
+                class="
+                  w-full
+                  pl-10 pr-10 py-3
+                  bg-surface-container-lowest
+                  rounded-lg
+                  text-sm text-on-surface
+                  transition-all
+                  focus:outline-none
+                "
+                [class.border-outline-variant]="!isLoading() && !errorMessage()"
+                [class.focus:ring-2]="!isLoading() && !errorMessage()"
+                [class.focus:ring-primary/30]="!isLoading() && !errorMessage()"
+                [class.focus:border-primary]="!isLoading() && !errorMessage()"
+                [class.border-success-soft]="isLoading()"
+                [class.border-error-soft]="errorMessage()"
+              />
+
+              <!-- El ojito se mantiene visible siempre, incluso con error; -->
+              <!-- solo se reemplaza por el check verde mientras isLoading() es true -->
+              @if (isLoading()) {
+                <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-success-soft">
+                  check_circle
+                </span>
+              } @else {
+                <button
+                  type="button"
+                  (click)="togglePasswordVisibility()"
+                  class="
+                    absolute right-3 top-1/2 -translate-y-1/2
+                    text-outline
+                    hover:text-on-surface-variant
+                    transition-colors
+                  "
+                  [attr.aria-label]="isPasswordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  <span class="material-symbols-outlined text-lg">
+                    {{ isPasswordVisible() ? 'visibility_off' : 'visibility' }}
+                  </span>
+                </button>
+              }
+            </div>
+
+            @if (errorMessage(); as message) {
+              <div class="mt-2 flex items-center gap-1.5 text-error-soft">
+                <span class="material-symbols-outlined text-lg">error</span>
+                <span class="text-xs font-bold">{{ message }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Botón: cambia de texto/ícono según isLoading -->
+          <button
+            type="submit"
+            [disabled]="isLoading()"
+            class="
+              w-full flex items-center justify-center
+              gap-2
+              py-4
+              bg-primary
+              text-white text-sm font-medium
+              rounded-lg
+              shadow-sm
+              transition-all hover:bg-primary-container active:scale-[0.98] disabled:opacity-70
+            "
+          >
+            @if (isLoading()) {
+              Ingresando
+              <span class="material-symbols-outlined text-lg animate-pulse">sync</span>
+            } @else {
+              Ingresar
+            }
+          </button>
+        </form>
+
+        <div class="mt-8 pt-8 border-t border-outline-variant text-center">
+          <p class="text-sm text-on-surface-variant">
+            ¿No tienes una cuenta?
+            <a href="#" class="font-bold text-primary hover:underline">Contacta a Soporte</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
