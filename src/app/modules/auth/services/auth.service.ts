@@ -38,7 +38,7 @@ export class AuthService {
       .post<ApiResponse<LoginResponseData>>(this.endpoints.auth.login, body)
       .subscribe({
         next: (response) => {
-          this.tokenService.setToken(response.data.accessToken);
+          this.tokenService.setToken(response.data.jwt);
           this.loadingSignal.set(false);
         },
         error: (httpError) => {
