@@ -1,0 +1,85 @@
+
+<aside
+  class="
+    fixed left-0 top-0 w-sidebar 
+    h-screen
+    flex flex-col
+    py-4
+    bg-primary-fixed
+    border-r border-outline-variant
+    z-50
+  "
+>
+  <div class="px-6 mb-10">
+    <h1 class="text-lg font-bold text-primary">Casa de Dios</h1>
+    <p class="text-xs text-on-surface-variant/70 uppercase tracking-wider">Portal de Gestión</p>
+  </div>
+
+  <nav class="flex-1 space-y-1">
+    @for (item of navItems; track item.route) {
+        <a [routerLink]="item.route" 
+            class="
+                relative flex items-center
+                px-6 py-3
+                transition-colors duration-150" 
+            [class.bg-primary-fixed-dim]="currentRoute().startsWith(item.route)" 
+            [class.text-on-primary-fixed]="currentRoute().startsWith(item.route)" 
+            [class.font-bold]="currentRoute().startsWith(item.route)" 
+            [class.text-on-surface-variant]="!currentRoute().startsWith(item.route)" 
+            [class.hover:bg-surface-container-high]="!currentRoute().startsWith(item.route)"
+            >
+            @if (currentRoute().startsWith(item.route)) {
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container"></div>
+            }
+            <span class="material-symbols-outlined mr-3">{{ item.icon }}</span>
+            <span class="text-sm">{{ item.label }}</span>
+        </a>
+    }
+  </nav>
+</aside>
+
+<header
+  class="
+    fixed top-0 right-0
+    h-16 w-[calc(100%-16.25rem)]
+    flex items-center justify-between
+    px-8
+    bg-background
+    border-b border-outline-variant
+    z-40
+  "
+>
+  <div class="flex items-center w-96 px-4 py-2 bg-surface-container-low rounded-full">
+    <span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+    <input
+      type="text"
+      placeholder="Búsqueda rápida..."
+      class="w-full bg-transparent border-none text-sm focus:ring-0 focus:outline-none"
+    />
+  </div>
+
+  <div class="flex items-center gap-6">
+    <button class="p-1 rounded-full text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">notifications</span>
+    </button>
+    <div class="h-8 w-px bg-outline-variant"></div>
+    <div class="flex items-center gap-3">
+      <div class="text-right">
+        <p class="text-sm font-bold text-on-surface">Pastor</p>
+      </div>
+      <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white">
+        <span class="material-symbols-outlined">person</span>
+      </div>
+    </div>
+    <button
+      (click)="logout()"
+      class="text-sm font-bold text-secondary hover:text-primary transition-colors"
+    >
+      Salir
+    </button>
+  </div>
+</header>
+
+<main class="ml-sidebar mt-16 p-8 min-h-[calc(100vh-4rem)]">
+  <router-outlet></router-outlet>
+</main>

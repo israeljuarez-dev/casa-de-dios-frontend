@@ -1,0 +1,40 @@
+@if (isOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-on-surface/40" (click)="onCancelClick()"></div>
+
+    <div class="relative z-10 w-full max-w-md">
+      <div class="flex flex-col items-center p-8 text-center bg-surface-container-lowest rounded-xl shadow-md">
+        <div class="flex items-center justify-center w-16 h-16 mb-4 bg-error-soft/20 rounded-full">
+          <span class="material-symbols-outlined text-error-soft text-[40px]">warning</span>
+        </div>
+
+        <div class="space-y-2 mb-8">
+          <h2 class="text-xl font-semibold text-on-surface">{{ title() }}</h2>
+          <p class="max-w-70 mx-auto text-sm text-on-surface-variant leading-relaxed">{{ message() }}</p>
+        </div>
+
+        <div class="flex flex-col-reverse sm:flex-row-reverse gap-3 w-full">
+          <button
+            type="button"
+            (click)="onConfirmClick()"
+            class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-error-soft text-white text-sm font-medium rounded-lg transition-all active:scale-95 hover:opacity-90"
+          >
+            <span class="material-symbols-outlined text-sm">delete</span>
+            {{ confirmLabel() }}
+          </button>
+          <button
+            type="button"
+            (click)="onCancelClick()"
+            class="w-full py-3 px-6 bg-surface-container-high text-on-surface text-sm font-medium rounded-lg transition-colors active:scale-95 hover:bg-surface-container-highest"
+          >
+            {{ cancelLabel() }}
+          </button>
+        </div>
+      </div>
+
+      <p class="mt-4 text-center text-xs text-white/80 uppercase tracking-widest">
+        Presione ESC para cancelar
+      </p>
+    </div>
+  </div>
+}

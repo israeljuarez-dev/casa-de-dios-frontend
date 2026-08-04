@@ -1,46 +1,66 @@
 @import "tailwindcss";
 
 html {
-  font-size: 140%;
+  font-size: 130%;
 }
 
 @theme {
-  /* Colores — se mantienen exactamente igual, en RGBA como ya los tenías */
-  --color-primary: rgba(83, 97, 56, <alpha-value>);
-  --color-primary-fixed: rgba(216, 233, 181, <alpha-value>);
-  --color-primary-container: rgba(107, 122, 79, <alpha-value>);
-  --color-background: rgba(249, 250, 247, <alpha-value>);
-  --color-surface-container-lowest: rgba(255, 255, 255, <alpha-value>);
-  --color-on-surface: rgba(25, 28, 27, <alpha-value>);
-  --color-on-surface-variant: rgba(69, 72, 62, <alpha-value>);
-  --color-on-primary-fixed-variant: rgba(62, 75, 37, <alpha-value>);
-  --color-outline: rgba(118, 120, 109, <alpha-value>);
-  --color-outline-variant: rgba(198, 200, 186, <alpha-value>);
-  --color-success-soft: rgba(127, 163, 126, <alpha-value>);
-  --color-error-soft: rgba(217, 123, 123, <alpha-value>);
+  /* Primarios */
+  --color-primary: rgba(83, 97, 56, 1);
+  --color-primary-fixed: rgba(216, 233, 181, 1);
+  --color-primary-fixed-dim: rgba(188, 205, 155, 1);
+  --color-primary-container: rgba(107, 122, 79, 1);
+  --color-on-primary-fixed: rgba(19, 31, 1, 1);
+  --color-on-primary-fixed-variant: rgba(62, 75, 37, 1);
 
-  --font-sans: "Plus Jakarta Sans", sans-serif;
+  /* Secundarios */
+  --color-secondary: rgba(65, 98, 118, 1);
+  --color-secondary-container: rgba(193, 229, 252, 1);
+  --color-on-secondary-container: rgba(69, 103, 123, 1);
 
-  --text-xs: 1rem;          /* antes 0.875rem (14px → 16px) */
+  /* Fondos y superficies */
+  --color-background: rgba(249, 250, 247, 1);
+  --color-surface-container-lowest: rgba(255, 255, 255, 1);
+  --color-surface-container-low: rgba(243, 244, 241, 1);
+  --color-surface-container: rgba(237, 238, 235, 1);
+  --color-surface-container-high: rgba(231, 232, 230, 1);
+  --color-surface-container-highest: rgba(226, 227, 224, 1);
+  --color-on-surface: rgba(25, 28, 27, 1);
+  --color-on-surface-variant: rgba(69, 72, 62, 1);
+
+  /* Bordes */
+  --color-outline: rgba(118, 120, 109, 1);
+  --color-outline-variant: rgba(198, 200, 186, 1);
+
+  /* Estados */
+  --color-error: rgba(186, 26, 26, 1);
+  --color-error-soft: rgba(217, 123, 123, 1);
+  --color-success-soft: rgba(127, 163, 126, 1);
+
+  --font-sans: "Inter", sans-serif;
+
+  --text-xs: 1rem;
   --text-xs--line-height: 1.5rem;
 
-  --text-sm: 1.125rem;      /* antes 1rem     (16px → 18px) */
+  --text-sm: 1.125rem;
   --text-sm--line-height: 1.75rem;
 
-  --text-base: 1.25rem;     /* antes 1.125rem (18px → 20px) */
+  --text-base: 1.25rem;
   --text-base--line-height: 1.875rem;
 
-  --text-lg: 1.5rem;        /* antes 1.25rem  (20px → 24px) */
+  --text-lg: 1.5rem;
   --text-lg--line-height: 2rem;
 
-  --text-xl: 1.75rem;       /* antes 1.5rem   (24px → 28px) */
+  --text-xl: 1.75rem;
   --text-xl--line-height: 2.25rem;
 
-  --text-2xl: 2rem;         /* antes 1.75rem  (28px → 32px) */
+  --text-2xl: 2rem;
   --text-2xl--line-height: 2.5rem;
 
-  --text-4xl: 2.75rem;      /* antes 2.5rem   (40px → 44px) */
+  --text-4xl: 2.75rem;
   --text-4xl--line-height: 1.15;
+
+  --spacing-sidebar: 16.25rem;
 }
 
 .material-symbols-outlined {
