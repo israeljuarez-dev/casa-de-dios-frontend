@@ -10,6 +10,8 @@ import { SpiritualLevel } from '@modules/disciples/enums/disciple.enums';
 import { DiscipleResponse } from '@modules/disciples/types/disciple-response.types';
 import { SpiritualLevelLabelPipe } from '@modules/disciples/pipes/spiritual-level-label.pipe';
 import { ConfirmDialog } from '@shared/components/confirm-dialog/confirm-dialog';
+import { SpiritualLevelBadgeClassPipe } from '@modules/disciples/pipes/spiritual-level-badge.pipe';
+import { BirthdayStatusPipe } from '@modules/disciples/pipes/birthday-status.pipe';
 
 @Component({
   selector: 'app-disciples-list',
@@ -17,6 +19,8 @@ import { ConfirmDialog } from '@shared/components/confirm-dialog/confirm-dialog'
     FormsModule, 
     RouterLink, 
     SpiritualLevelLabelPipe,
+    SpiritualLevelBadgeClassPipe,
+    BirthdayStatusPipe,
     ConfirmDialog,
   ],
   templateUrl: './disciples-list.html',

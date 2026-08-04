@@ -41,23 +41,14 @@
 <header
   class="
     fixed top-0 right-0
-    h-16 w-[calc(100%-16.25rem)]
-    flex items-center justify-between
+    h-16 w-[calc(100%-var(--spacing-sidebar))]
+    flex items-center justify-end
     px-8
     bg-background
     border-b border-outline-variant
     z-40
   "
 >
-  <div class="flex items-center w-96 px-4 py-2 bg-surface-container-low rounded-full">
-    <span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
-    <input
-      type="text"
-      placeholder="Búsqueda rápida..."
-      class="w-full bg-transparent border-none text-sm focus:ring-0 focus:outline-none"
-    />
-  </div>
-
   <div class="flex items-center gap-6">
     <button class="p-1 rounded-full text-on-surface-variant hover:text-primary transition-colors">
       <span class="material-symbols-outlined">notifications</span>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 html {
-  font-size: 130%;
+  font-size: 110%;
 }
 
 @theme {
@@ -37,6 +37,10 @@ html {
   --color-error-soft: rgba(217, 123, 123, 1);
   --color-success-soft: rgba(127, 163, 126, 1);
 
+  --color-warning: rgba(180, 130, 10, 1);
+  --color-info: rgba(14, 116, 144, 1);
+  --color-school: rgba(37, 99, 176, 1);
+
   --font-sans: "Inter", sans-serif;
 
   --text-xs: 1rem;
@@ -61,9 +65,20 @@ html {
   --text-4xl--line-height: 1.15;
 
   --spacing-sidebar: 16.25rem;
+
+  --animate-birthday-pulse: birthday-pulse 0.6s ease-in-out infinite;
 }
 
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   vertical-align: middle;
+}
+
+@keyframes birthday-pulse {
+  0%, 100% {
+    background-color: var(--color-error);
+  }
+  50% {
+    background-color: var(--color-warning);
+  }
 }

@@ -1,0 +1,141 @@
+<div class="mb-8 flex items-end justify-between">
+  <h2 class="text-2xl font-bold text-primary">Bienvenida, Pastora</h2>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+  <div class="flex flex-col justify-between min-h-55 p-8 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30">
+    <div>
+      <div class="flex items-start justify-between mb-6">
+        <div class="flex items-center justify-center w-14 h-14 bg-primary-fixed-dim rounded-2xl">
+          <span class="material-symbols-outlined text-primary text-3xl">trending_up</span>
+        </div>
+        <span class="px-3 py-1.5 bg-primary-fixed text-primary text-xs font-bold rounded-full">+12% mes anterior</span>
+      </div>
+      <p class="text-lg font-semibold text-on-surface mb-2">Crecimiento Mensual</p>
+    </div>
+    <div class="flex items-center justify-between">
+      <div class="flex items-baseline gap-2">
+        <h3 class="text-4xl text-primary">{{ newDisciplesThisMonth().length }}</h3>
+        <span class="text-sm text-on-surface-variant">nuevos discípulos</span>
+      </div>
+      <button type="button" (click)="openModal('growth')" class="px-6 py-2 bg-primary text-white rounded-lg font-medium transition-all hover:bg-primary-container">
+        Ver
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-col justify-between min-h-55 p-8 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30">
+    <div>
+      <div class="flex items-start justify-between mb-6">
+        <div class="flex items-center justify-center w-14 h-14 bg-secondary-container rounded-2xl">
+          <span class="material-symbols-outlined text-secondary text-3xl">workspace_premium</span>
+        </div>
+        <span class="px-3 py-1.5 bg-secondary-container text-secondary text-xs font-bold rounded-full">Consolidado</span>
+      </div>
+      <p class="text-lg font-semibold text-on-surface mb-2">Liderazgo Activo</p>
+    </div>
+    <div class="flex items-center justify-between">
+      <div class="flex items-baseline gap-2">
+        <h3 class="text-4xl text-secondary">{{ activeLeaders().length }}</h3>
+        <span class="text-sm text-on-surface-variant">líderes en red</span>
+      </div>
+      <button type="button" (click)="openModal('leadership')" class="px-6 py-2 bg-primary text-white rounded-lg font-medium transition-all hover:bg-primary-container">
+        Ver
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-col justify-between min-h-55 p-8 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30">
+    <div>
+      <div class="flex items-start justify-between mb-6">
+        <div class="flex items-center justify-center w-14 h-14 bg-error-soft/20 rounded-2xl">
+          <span class="material-symbols-outlined text-error-soft text-3xl">cake</span>
+        </div>
+        <span class="px-3 py-1.5 bg-error-soft/20 text-error-soft text-xs font-bold rounded-full">Esta semana</span>
+      </div>
+      <p class="text-lg font-semibold text-on-surface mb-2">Cumpleaños</p>
+    </div>
+    <div class="flex items-center justify-between">
+      <div class="flex items-baseline gap-2">
+        <h3 class="text-4xl text-error-soft">{{ birthdaysThisWeek().length }}</h3>
+        <span class="text-sm text-on-surface-variant">celebraciones</span>
+      </div>
+      <button type="button" (click)="openModal('birthdays')" class="px-6 py-2 bg-primary text-white rounded-lg font-medium transition-all hover:bg-primary-container">
+        Ver
+      </button>
+    </div>
+  </div>
+</div>
+
+@if (activeModal(); as modal) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-on-surface/40" (click)="closeModal()"></div>
+
+    <div class="relative z-10 w-full max-w-2xl bg-surface-container-lowest rounded-xl shadow-md overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+        <h3 class="text-lg font-bold text-primary">
+          @switch (modal) {
+            @case ('growth') { Nuevos Discípulos (Este Mes) }
+            @case ('leadership') { Líderes Activos }
+            @case ('birthdays') { Cumpleaños de esta semana }
+          }
+        </h3>
+        <button type="button" (click)="closeModal()" class="text-on-surface-variant transition-colors hover:text-error-soft">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="px-6 py-6 max-h-[60vh] overflow-y-auto">
+        @switch (modal) {
+          @case ('growth') {
+            <div class="grid grid-cols-2 gap-4 px-4 py-2 text-xs font-bold text-on-surface-variant border-b border-outline-variant">
+              <div>Nombre Completo</div>
+              <div class="text-right">Fecha de Registro</div>
+            </div>
+            @for (item of newDisciplesThisMonth(); track item.fullName) {
+              <div class="grid grid-cols-2 gap-4 px-4 py-4 border-b border-outline-variant/30 transition-colors hover:bg-surface-container-low">
+                <div class="text-sm">{{ item.fullName }}</div>
+                <div class="text-sm text-right text-on-surface-variant">{{ item.registeredAt }}</div>
+              </div>
+            }
+          }
+          @case ('leadership') {
+            <div class="grid grid-cols-3 gap-4 px-4 py-2 text-xs font-bold text-on-surface-variant border-b border-outline-variant">
+              <div>Nombre</div>
+              <div>Apellido</div>
+              <div>Célula Líder</div>
+            </div>
+            @for (leader of activeLeaders(); track leader.firstName + leader.lastName) {
+              <div class="grid grid-cols-3 gap-4 px-4 py-4 border-b border-outline-variant/30 transition-colors hover:bg-surface-container-low">
+                <div class="text-sm">{{ leader.firstName }}</div>
+                <div class="text-sm">{{ leader.lastName }}</div>
+                <div class="text-sm text-on-surface-variant">{{ leader.cellGroupName }}</div>
+              </div>
+            }
+          }
+          @case ('birthdays') {
+            <div class="grid grid-cols-3 gap-4 px-4 py-2 text-xs font-bold text-on-surface-variant border-b border-outline-variant">
+              <div>Nombre</div>
+              <div>Apellido</div>
+              <div>Célula</div>
+            </div>
+            @for (person of birthdaysThisWeek(); track person.firstName + person.lastName) {
+              <div class="grid grid-cols-3 gap-4 px-4 py-4 border-b border-outline-variant/30 transition-colors hover:bg-surface-container-low">
+                <div class="text-sm">{{ person.firstName }}</div>
+                <div class="text-sm">{{ person.lastName }}</div>
+                <div class="text-sm text-on-surface-variant">{{ person.cellGroupName }}</div>
+              </div>
+            }
+          }
+        }
+      </div>
+
+      <div class="flex justify-end px-6 py-4 bg-surface-container">
+        <button type="button" (click)="closeModal()" class="px-4 py-2 text-primary font-bold rounded-lg transition-colors hover:bg-surface-container-high">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+}

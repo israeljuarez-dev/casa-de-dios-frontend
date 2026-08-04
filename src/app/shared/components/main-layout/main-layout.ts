@@ -30,6 +30,11 @@ export class MainLayout {
 
   navItems: NavItem[] = [
     { 
+      label: 'Inicio', 
+      icon: 'home', 
+      route: '/home' 
+    },
+    { 
       label: 'Discípulos', 
       icon: 'group', 
       route: '/disciples' 
