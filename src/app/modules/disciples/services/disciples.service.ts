@@ -2,6 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { 
     Service, 
     computed, 
+    effect, 
     inject, 
     signal 
 } from '@angular/core';
@@ -17,9 +18,9 @@ const DEFAULT_PAGE_SIZE = 10;
 @Service()
 export class DisciplesService {
 
-  private endpoints = inject(ApiEndpoints);
+  private readonly endpoints = inject(ApiEndpoints);
 
-  private disciplesApiService = inject(DisciplesApiService);
+  private readonly disciplesApiService = inject(DisciplesApiService);
 
   private searchCriteria = signal<DiscipleSearchCriteria>({
     page: 0,
@@ -28,31 +29,53 @@ export class DisciplesService {
     sortDirection: 'ASC',
   });
 
+  private selectedId = signal<number | null>(null);
+
+  private cachedPagination = signal<PaginationResponse<DiscipleResponse> | null>(null);
+
+  private inviterSearchQuery = signal<string>('');
+
+  disciples = computed(() => this.disciplesResource.value()?.data.content ?? []);
+  pagination = computed(() => this.disciplesResource.value()?.data ?? null);
+
+  isLoading = computed(() => this.disciplesResource.isLoading());
+  error = computed(() => this.disciplesResource.error());
+  currentCriteria = computed(() => this.searchCriteria());
+
+  disciple = computed(() => this.discipleResource.value()?.data ?? null);
+  isLoadingDisciple = computed(() => this.discipleResource.isLoading());
+  discipleError = computed(() => this.discipleResource.error());
+
+  inviterSearchResults = computed(() => this.inviterSearchResource.value()?.data.content ?? []);
+  inviterSearchLoading = computed(() => this.inviterSearchResource.isLoading());
+  
   private disciplesResource = httpResource<ApiResponse<PaginationResponse<DiscipleResponse>>>(() => ({
     url: this.endpoints.disciples.list,
     params: this.buildQueryParams(this.searchCriteria()),
   }));
-
-  disciples = computed(() => this.disciplesResource.value()?.data.content ?? []);
-
-  pagination = computed(() => this.disciplesResource.value()?.data ?? null);
-
-  isLoading = computed(() => this.disciplesResource.isLoading());
-
-  error = computed(() => this.disciplesResource.error());
-  
-  currentCriteria = computed(() => this.searchCriteria());
-
-  private selectedId = signal<number | null>(null);
 
   private discipleResource = httpResource<ApiResponse<DiscipleResponse>>(() => {
     const id = this.selectedId();
     return id === null ? undefined : { url: this.endpoints.disciples.getById(id) };
   });
 
-  disciple = computed(() => this.discipleResource.value()?.data ?? null);
-  isLoadingDisciple = computed(() => this.discipleResource.isLoading());
-  discipleError = computed(() => this.discipleResource.error());
+  private inviterSearchResource = httpResource<ApiResponse<PaginationResponse<DiscipleResponse>>>(() => {
+    const query = this.inviterSearchQuery();
+    if (query.length < 2) return undefined;
+    return {
+      url: this.endpoints.disciples.list,
+      params: { firstName: query, size: 8 },
+    };
+  });
+
+  constructor() {
+    effect(() => {
+      const value = this.disciplesResource.value();
+      if (value) {
+        this.cachedPagination.set(value.data);
+      }
+    });
+  }
 
   selectDisciple(id: number): void {
     this.selectedId.set(id);
@@ -91,6 +114,7 @@ export class DisciplesService {
 
     if (criteria.firstName) params['firstName'] = criteria.firstName;
     if (criteria.lastName) params['lastName'] = criteria.lastName;
+    if (criteria.gender) params['gender'] = criteria.gender;
     if (criteria.spiritualLevel) params['spiritualLevel'] = criteria.spiritualLevel;
     if (criteria.maritalStatus) params['maritalStatus'] = criteria.maritalStatus;
     if (criteria.page !== undefined) params['page'] = criteria.page;
@@ -99,5 +123,9 @@ export class DisciplesService {
     if (criteria.sortDirection) params['sortDirection'] = criteria.sortDirection;
 
     return params;
+  }
+
+  setInviterSearchQuery(query: string): void {
+    this.inviterSearchQuery.set(query);
   }
 }

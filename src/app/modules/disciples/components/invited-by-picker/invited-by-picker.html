@@ -1,0 +1,40 @@
+<div class="relative">
+  <div class="relative">
+    <input
+      type="text"
+      [ngModel]="displayValue()"
+      (ngModelChange)="onInput($event)"
+      (focus)="onFocus()"
+      placeholder="Buscar discípulo por nombre..."
+      class="w-full px-4 py-2.5 bg-white border border-outline-variant rounded-xl text-sm outline-none transition-all focus:ring-4 focus:ring-primary/10 focus:border-primary"
+      [class.pr-10]="discipleLabel() && !isOpen()"
+    />
+    @if (discipleLabel() && !isOpen()) {
+      <button type="button" (click)="clearSelection($event)" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors hover:text-error">
+        <span class="material-symbols-outlined text-lg">close</span>
+      </button>
+    }
+  </div>
+
+  @if (isOpen() && searchText().length >= 2) {
+    <div class="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto bg-white border border-outline-variant rounded-xl shadow-md">
+      @if (isLoading()) {
+        <div class="flex items-center justify-center py-4">
+          <span class="material-symbols-outlined text-xl text-primary animate-spin">progress_activity</span>
+        </div>
+      } @else if (results().length === 0) {
+        <p class="px-4 py-3 text-sm text-on-surface-variant">Sin resultados</p>
+      } @else {
+        @for (disciple of results(); track disciple.id) {
+          <button
+            type="button"
+            (click)="selectDisciple(disciple)"
+            class="w-full flex items-start px-4 py-2 text-left transition-colors hover:bg-primary hover:text-white"
+          >
+            <span class="text-sm font-bold">{{ disciple.firstName }} {{ disciple.lastName }}</span>
+          </button>
+        }
+      }
+    </div>
+  }
+</div>

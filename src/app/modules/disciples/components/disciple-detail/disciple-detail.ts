@@ -11,6 +11,7 @@ import { DisciplesService } from '@modules/disciples/services/disciples.service'
 import { SpiritualLevelLabelPipe } from '@modules/disciples/pipes/spiritual-level-label.pipe';
 import { MaritalStatusLabelPipe } from '@modules/disciples/pipes/marital-status-label.pipe';
 import { ConfirmDialog } from '@shared/components/confirm-dialog/confirm-dialog';
+import { DiscipleForm } from '@modules/disciples/components/disciple-form/disciple-form';
 
 @Component({
   selector: 'app-disciple-detail',
@@ -19,6 +20,7 @@ import { ConfirmDialog } from '@shared/components/confirm-dialog/confirm-dialog'
     SpiritualLevelLabelPipe, 
     MaritalStatusLabelPipe,
     ConfirmDialog,
+    DiscipleForm
   ],
   templateUrl: './disciple-detail.html',
   styleUrl: './disciple-detail.css',
@@ -38,6 +40,9 @@ export class DiscipleDetail {
   error = this.disciplesService.discipleError;
 
   showDeleteConfirm = signal<boolean>(false);
+
+  showEditForm = signal<boolean>(false);
+
 
   fullName = computed(() => {
     const d = this.disciple();
@@ -97,5 +102,10 @@ export class DiscipleDetail {
         this.showDeleteConfirm.set(false);
       },
     });
+  }
+
+  onDiscipleUpdated(): void {
+    this.showEditForm.set(false);
+    this.disciplesService.selectDisciple(Number(this.id()));
   }
 }

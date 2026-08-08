@@ -1,32 +1,47 @@
 import { 
   Component, 
   computed, 
-  inject 
+  inject, 
+  signal
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { 
+  NavigationEnd,
   Router, 
   RouterLink, 
   RouterOutlet 
 } from '@angular/router';
 import { TokenService } from '@core/auth/services/token.service';
+import { 
+  filter, 
+  map, 
+  startWith 
+} from 'rxjs';
+import { ConfirmDialog } from '@shared/components/confirm-dialog/confirm-dialog';
 
 interface NavItem {
   label: string;
   icon: string;
   route: string;
 }
+import { AuthService } from '@modules/auth/services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, RouterLink],
+  imports: [
+    RouterOutlet, 
+    RouterLink,
+    ConfirmDialog
+  ],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',
 })
 export class MainLayout {
 
-  private router = inject(Router);
+  private readonly router = inject(Router);
+  private readonly tokenService = inject(TokenService);
 
-  private tokenService = inject(TokenService);
+  authService = inject(AuthService);
 
   navItems: NavItem[] = [
     { 
@@ -67,10 +82,28 @@ export class MainLayout {
     },
   ];
 
-  currentRoute = computed(() => this.router.url);
+  currentRoute = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+      startWith(this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
 
-  logout(): void {
+  showLogoutConfirm = signal<boolean>(false);
+
+  requestLogout(): void {
+    this.showLogoutConfirm.set(true);
+  }
+
+  confirmLogout(): void {
+    this.showLogoutConfirm.set(false);
     this.tokenService.clearToken();
     this.router.navigate(['/login']);
+  }
+
+  cancelLogout(): void {
+    this.showLogoutConfirm.set(false);
   }
 }

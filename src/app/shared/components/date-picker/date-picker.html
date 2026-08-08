@@ -1,0 +1,64 @@
+<div class="relative">
+  <button
+    type="button"
+    (click)="toggle()"
+    class="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-outline-variant rounded-xl text-sm text-left outline-none transition-all focus:ring-4 focus:ring-primary/10 focus:border-primary"
+  >
+    <span [class.text-outline]="!value()">{{ displayValue() || placeholder() }}</span>
+    <span class="material-symbols-outlined text-outline">calendar_month</span>
+  </button>
+
+  @if (isOpen()) {
+    <div class="absolute z-20 mt-1 w-80 bg-white border border-outline-variant rounded-xl shadow-md p-4">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="flex-1">
+          <app-select [options]="monthOptions" [value]="viewMonth()" (valueChange)="onMonthChange($event)" />
+        </div>
+        <div class="w-28">
+          <app-select [options]="yearOptions()" [value]="viewYear()" (valueChange)="onYearChange($event)" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-7 gap-1 mb-1">
+        @for (label of weekdayLabels; track label) {
+          <span class="flex items-center justify-center h-8 text-xs font-bold text-on-surface-variant">{{ label }}</span>
+        }
+      </div>
+
+      <div class="grid grid-cols-7 gap-1">
+        @for (day of calendarDays(); track day.iso) {
+          <button
+            type="button"
+            [disabled]="day.isDisabled"
+            (click)="selectDay(day)"
+            class="flex items-center justify-center h-8 rounded-lg text-sm transition-colors"
+            [class.text-outline-variant]="!day.inCurrentMonth"
+            [class.text-on-surface]="day.inCurrentMonth && !day.isSelected"
+            [class.bg-primary]="day.isSelected"
+            [class.text-white]="day.isSelected"
+            [class.font-bold]="day.isToday && !day.isSelected"
+            [class.border]="day.isToday && !day.isSelected"
+            [class.border-primary]="day.isToday && !day.isSelected"
+            [class.opacity-30]="day.isDisabled"
+            [class.cursor-not-allowed]="day.isDisabled"
+            [class.hover:bg-primary-fixed]="!day.isDisabled && !day.isSelected"
+          >
+            {{ day.dayNumber }}
+          </button>
+        }
+      </div>
+
+      <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant">
+        <button type="button" (click)="clearValue()" class="text-xs font-bold text-error transition-colors hover:underline">
+          Borrar
+        </button>
+        <button type="button" (click)="selectToday()" class="text-xs font-bold text-primary transition-colors hover:underline">
+          Hoy
+        </button>
+        <button type="button" (click)="close()" class="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg transition-colors hover:bg-primary-container">
+          Listo
+        </button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { MaritalStatus } from '@modules/disciples/enums/disciple.enums';
 
-const MARITAL_STATUS_LABELS: Record<MaritalStatus, string> = {
+export const MARITAL_STATUS_LABELS: Record<MaritalStatus, string> = {
   [MaritalStatus.SINGLE]: 'Soltero/a',
   [MaritalStatus.MARRIED]: 'Casado/a',
   [MaritalStatus.DIVORCED]: 'Divorciado/a',

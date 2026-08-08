@@ -1,0 +1,36 @@
+<div class="relative">
+  <button
+    type="button"
+    (click)="toggle()"
+    class="w-full flex items-center gap-2 pl-4 pr-10 py-2 bg-white border border-outline-variant rounded-lg text-sm text-left outline-none transition-all focus:ring-2 focus:ring-primary/30 focus:border-primary"
+  >
+    @if (selectedOption()?.imageUrl) {
+      <img [src]="selectedOption()!.imageUrl" alt="" class="w-5 h-auto rounded-xs" />
+    }
+    <span [class.text-outline]="value() === null">{{ selectedLabel() }}</span>
+    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">
+      expand_more
+    </span>
+  </button>
+
+  @if (isOpen()) {
+    <div (mouseenter)="pauseSearchReset()" class="absolute z-20 mt-1 min-w-full w-max max-w-72 max-h-60 overflow-y-auto bg-white border border-outline-variant rounded-lg shadow-md">
+      @for (option of filteredOptions(); track $index) {
+        <button
+          type="button"
+          (click)="selectOption(option)"
+          class="w-full flex items-center gap-2 px-4 py-2 text-sm text-left whitespace-nowrap transition-colors"
+          [class.bg-primary]="option.value === value()"
+          [class.text-white]="option.value === value()"
+          [class.hover:bg-primary]="option.value !== value()"
+          [class.hover:text-white]="option.value !== value()"
+        >
+          @if (option.imageUrl) {
+            <img [src]="option.imageUrl" alt="" class="w-5 shrink-0 h-auto rounded-xs" />
+          }
+          <span class="truncate">{{ option.label }}</span>
+        </button>
+      }
+    </div>
+  }
+</div>

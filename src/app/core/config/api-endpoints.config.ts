@@ -6,7 +6,9 @@ export class ApiEndpoints {
 
   readonly auth = {
     login: `${this.baseUrl}/auth/login`,
+    me: `${this.baseUrl}/auth/me`,
     register: `${this.baseUrl}/auth/register`,
+    changePassword: `${this.baseUrl}/auth/change-password`,
   };
 
   readonly disciples = {

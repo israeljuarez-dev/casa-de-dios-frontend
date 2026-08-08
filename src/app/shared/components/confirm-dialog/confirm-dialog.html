@@ -17,15 +17,15 @@
           <button
             type="button"
             (click)="onConfirmClick()"
-            class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-error-soft text-white text-sm font-medium rounded-lg transition-all active:scale-95 hover:opacity-90"
+            class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-error text-white text-sm font-bold rounded-lg shadow-sm transition-all active:scale-95 hover:opacity-90"
           >
-            <span class="material-symbols-outlined text-sm">delete</span>
+            <span class="material-symbols-outlined text-sm">warning</span>
             {{ confirmLabel() }}
           </button>
           <button
             type="button"
             (click)="onCancelClick()"
-            class="w-full py-3 px-6 bg-surface-container-high text-on-surface text-sm font-medium rounded-lg transition-colors active:scale-95 hover:bg-surface-container-highest"
+            class="w-full py-3 px-6 bg-surface-container-high text-on-surface text-sm font-medium rounded-lg border-2 border-transparent transition-all active:scale-95 hover:border-outline hover:bg-surface-container-highest"
           >
             {{ cancelLabel() }}
           </button>

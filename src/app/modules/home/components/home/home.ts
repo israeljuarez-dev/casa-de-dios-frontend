@@ -1,4 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { 
+  Component, 
+  computed, 
+  inject, 
+  signal
+} from '@angular/core';
+import { AuthService } from '@modules/auth/services/auth.service';
 
 type HomeModalKey = 'growth' | 'leadership' | 'birthdays' | null;
 
@@ -28,6 +34,8 @@ interface BirthdayMock {
 export class Home {
   activeModal = signal<HomeModalKey>(null);
 
+  private authService = inject(AuthService);
+
   // NOTA: datos de ejemplo, temporales. Se reemplazan por datos reales
   // en cuanto el backend exponga los endpoints de estadísticas del dashboard.
   newDisciplesThisMonth = signal<NewDiscipleMock[]>([
@@ -48,6 +56,13 @@ export class Home {
     { firstName: 'Ana', lastName: 'Gómez', cellGroupName: 'Sión' },
     { firstName: 'Luis', lastName: 'Ramírez', cellGroupName: 'Roca Firme' },
   ]);
+
+  welcomeMessage = computed(() => {
+    const user = this.authService.currentUser();
+    if (!user) return 'Bienvenido/a';
+    const greeting = user.gender === 'FEMALE' ? 'Bienvenida, Pastora' : 'Bienvenido, Pastor';
+    return `${greeting} ${user.firstName}`;
+  });
 
   openModal(key: HomeModalKey): void {
     this.activeModal.set(key);

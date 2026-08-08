@@ -56,15 +56,15 @@
     <div class="h-8 w-px bg-outline-variant"></div>
     <div class="flex items-center gap-3">
       <div class="text-right">
-        <p class="text-sm font-bold text-on-surface">Pastor</p>
+          <p class="text-sm font-bold text-on-surface">{{ authService.currentUser()?.firstName ?? 'Pastor' }}</p>
       </div>
       <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white">
         <span class="material-symbols-outlined">person</span>
       </div>
     </div>
     <button
-      (click)="logout()"
-      class="text-sm font-bold text-secondary hover:text-primary transition-colors"
+      (click)="requestLogout()"
+      class="px-3 py-1.5 text-sm font-bold text-secondary rounded-lg transition-colors hover:text-error hover:bg-error/15"
     >
       Salir
     </button>
@@ -73,4 +73,13 @@
 
 <main class="ml-sidebar mt-16 p-8 min-h-[calc(100vh-4rem)]">
   <router-outlet></router-outlet>
+  <app-confirm-dialog
+  [isOpen]="showLogoutConfirm()"
+  title="¿Deseas cerrar sesión?"
+  message="Tendrás que volver a ingresar tus credenciales para acceder nuevamente al sistema."
+  confirmLabel="Sí, salir"
+  cancelLabel="Cancelar"
+  (confirmed)="confirmLogout()"
+  (cancelled)="cancelLogout()"
+/>
 </main>

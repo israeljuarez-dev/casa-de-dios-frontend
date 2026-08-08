@@ -17,8 +17,6 @@ export const routes: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: Home },
       { path: 'disciples', component: DisciplesList },
-      { path: 'disciples/new', component: DiscipleForm },
-      { path: 'disciples/:id/edit', component: DiscipleForm },
       { path: 'disciples/:id', component: DiscipleDetail },
     ],
   },

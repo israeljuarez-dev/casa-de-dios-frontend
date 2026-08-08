@@ -1,33 +1,31 @@
 <div class="flex gap-2">
-  <select
-    [ngModel]="dialCode()"
-    (ngModelChange)="dialCode.set($event)"
-    class="
-      shrink-0 w-32
-      pl-3 pr-2 py-3
-      bg-surface-container-lowest border border-outline-variant
-      rounded-lg
-      text-sm
-      outline-none transition-all focus:ring-2 focus:ring-primary/30 focus:border-primary
-    "
-  >
-    @for (country of countries; track country.dialCode + country.name) {
-      <option [value]="country.dialCode">{{ country.flag }} + {{ country.dialCode }}</option>
-    }
-  </select>
+  <div class="w-32">
+    <app-select [options]="countryOptions" [(value)]="dialCode" placeholder="País" />
+  </div>
 
   <input
+    #phoneInputRef
     type="tel"
-    placeholder="Número de celular"
-    [ngModel]="phoneNumber()"
-    (ngModelChange)="phoneNumber.set($event)"
-    class="
-      flex-1
-      px-4 py-3
-      bg-surface-container-lowest border border-outline-variant
-      rounded-lg
-      text-sm
-      outline-none transition-all focus:ring-2 focus:ring-primary/30 focus:border-primary
-    "
+    [placeholder]="placeholder()"
+    [ngModel]="displayValue()"
+    (ngModelChange)="onPhoneNumberInput($event)"
+    class="flex-1 px-4 py-2.5 bg-white rounded-xl text-sm outline-none transition-all focus:ring-4"
+    [class.border]="true"
+    [class.border-outline-variant]="isValid()"
+    [class.border-error]="!isValid()"
+    [class.focus:border-primary]="isValid()"
+    [class.focus:ring-primary/10]="isValid()"
+    [class.focus:border-error]="!isValid()"
+    [class.focus:ring-error/10]="!isValid()"
   />
 </div>
+
+@if (hasLetters()) {
+  <p class="text-xs font-bold text-error ml-1 mt-1.5">Solo se permiten números.</p>
+} @else if (hasReachedLimit()) {
+  <p class="text-xs font-bold text-error ml-1 mt-1.5">
+    Se permite un máximo de {{ expectedDigits() }} dígitos para este país.
+  </p>
+} @else if (validationMessage(); as message) {
+  <p class="text-xs font-bold text-error ml-1 mt-1.5">{{ message }}</p>
+}

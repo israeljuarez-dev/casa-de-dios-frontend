@@ -1,3 +1,4 @@
+import { Gender } from '@core/types/gender.types';
 import { MaritalStatus, SpiritualLevel } from '@modules/disciples/enums/disciple.enums';
 
 export interface BirthdayAlertResponse {
@@ -15,6 +16,7 @@ export interface DiscipleChildResponse {
   id: number;
   firstName: string;
   lastName: string;
+  gender: Gender;
   birthDate: string;
   age: number;
 }
@@ -29,10 +31,11 @@ export interface DiscipleResponse {
   id: number;
   firstName: string;
   lastName: string;
+   gender: Gender;
   birthDate: string;
   age: number;
   occupation: string;
-phoneCodeNumber: string;
+  phoneCodeNumber: string;
   phoneNumber: string;
   address: string;
   dni: string;

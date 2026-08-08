@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { SpiritualLevel } from '@modules/disciples/enums/disciple.enums';
 
-const SPIRITUAL_LEVEL_LABELS: Record<SpiritualLevel, string> = {
+export const SPIRITUAL_LEVEL_LABELS: Record<SpiritualLevel, string> = {
   [SpiritualLevel.GUEST]: 'Invitado',
   [SpiritualLevel.PRE_RETREAT]: 'Pre-encuentro',
   [SpiritualLevel.RETREAT]: 'Encuentro',

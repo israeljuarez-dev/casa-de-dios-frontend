@@ -1,9 +1,11 @@
 import { MaritalStatus, SpiritualLevel } from '@modules/disciples/enums/disciple.enums';
 import { PaginationCriteria } from '@core/types/pagination.types';
+import { Gender } from '@core/types/gender.types';
 
 export interface DiscipleChildRegisterRequest {
   firstName: string;
   lastName: string;
+  gender: Gender;
   birthDate: string;
 }
 
@@ -11,6 +13,7 @@ export interface DiscipleChildUpdateRequest {
   id?: number;
   firstName: string;
   lastName: string;
+  gender: Gender;
   birthDate: string;
 }
 
@@ -18,6 +21,7 @@ export interface DiscipleRegisterRequest {
   firstName: string;
   lastName: string;
   birthDate: string;
+  gender: Gender;
   occupation: string;
   phoneCodeNumber: string;
   phoneNumber: string;
@@ -34,6 +38,7 @@ export interface DiscipleRegisterRequest {
 export interface DiscipleUpdateRequest {
   firstName: string;
   lastName: string;
+  gender: Gender;
   birthDate: string;
   occupation: string;
   phoneCodeNumber: string;
@@ -50,6 +55,7 @@ export interface DiscipleUpdateRequest {
 export interface DiscipleSearchCriteria extends PaginationCriteria {
   firstName?: string;
   lastName?: string;
+  gender?: Gender;
   spiritualLevel?: SpiritualLevel;
   maritalStatus?: MaritalStatus;
 }
