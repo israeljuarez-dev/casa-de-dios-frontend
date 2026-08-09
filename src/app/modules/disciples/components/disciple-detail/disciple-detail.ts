@@ -6,7 +6,11 @@ import {
   input,
   signal
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { 
+  ActivatedRoute, 
+  Router, 
+  RouterLink 
+} from '@angular/router';
 import { DisciplesService } from '@modules/disciples/services/disciples.service';
 import { SpiritualLevelLabelPipe } from '@modules/disciples/pipes/spiritual-level-label.pipe';
 import { MaritalStatusLabelPipe } from '@modules/disciples/pipes/marital-status-label.pipe';
@@ -48,6 +52,15 @@ const FIELD_ERROR_MAP: Record<string, string> = {
   isLeader: 'Liderazgo activo',
 };
 
+interface EditChildRow {
+  key: string;
+  id: number | null;
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+  birthDate: string;
+}
+
 @Component({
   selector: 'app-disciple-detail',
   imports: [
@@ -73,6 +86,7 @@ export class DiscipleDetail {
   private formErrorMapper = inject(FormErrorMapperService);
 
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   id = input.required<string>();
 
@@ -105,6 +119,8 @@ export class DiscipleDetail {
   editCoupleName = signal<string>('');
   editSpiritualLevel = signal<SpiritualLevel>(SpiritualLevel.GUEST);
   editIsLeader = signal<boolean>(false);
+
+  editChildren = signal<EditChildRow[]>([]);
 
   // Snapshot para detectar si hubo cambios
   private originalSnapshot = '';
@@ -187,6 +203,14 @@ export class DiscipleDetail {
     effect(() => {
       this.disciplesService.selectDisciple(Number(this.id()));
     });
+
+    effect(() => {
+      const d = this.disciple();
+      const editParam = this.route.snapshot.queryParamMap.get('edit');
+      if (d && editParam === 'true' && !this.isEditing()) {
+        this.enterEditMode();
+      }
+    });
   }
 
   enterEditMode(): void {
@@ -206,15 +230,70 @@ export class DiscipleDetail {
     this.editCoupleName.set(d.coupleName ?? '');
     this.editSpiritualLevel.set(d.spiritualLevel);
     this.editIsLeader.set(d.isLeader);
+
+    this.editChildren.set(
+      d.children.map((child) => ({
+        key: crypto.randomUUID(),
+        id: child.id,
+        firstName: child.firstName,
+        lastName: child.lastName,
+        gender: child.gender,
+        birthDate: child.birthDate,
+      }))
+    );
+
     this.fieldErrors.set({});
     this.originalSnapshot = this.buildSnapshot();
     this.isEditing.set(true);
   }
 
-
   cancelEdit(): void {
     this.isEditing.set(false);
     this.fieldErrors.set({});
+  }
+
+  cancelEditAndGoBack(): void {
+    this.toastService.show('No se modificó ningún dato', 'info');
+    this.isEditing.set(false);
+    this.router.navigate(['/disciples']);
+  }
+
+  addChild(): void {
+    this.editChildren.update((rows) => [
+      ...rows,
+      {
+        key: crypto.randomUUID(),
+        id: null,
+        firstName: '',
+        lastName: '',
+        gender: Gender.MALE,
+        birthDate: '',
+      },
+    ]);
+  }
+
+  // AÑADIDO: elimina un hijo del array por su key
+  // si tenía id → el backend lo eliminará al no estar en la lista
+  removeChild(key: string): void {
+    this.editChildren.update((rows) => rows.filter((r) => r.key !== key));
+  }
+
+  // AÑADIDO: actualiza un campo de un hijo específico por su key
+  // MODIFICADO: acepta null para ignorar emisiones vacías del select
+  updateChildField(
+    key: string,
+    field: 'firstName' | 'lastName' | 'gender' | 'birthDate',
+    value: string | Gender | null
+  ): void {
+    if (value === null) return;
+    this.editChildren.update((rows) =>
+      rows.map((row) => (row.key === key ? { ...row, [field]: value } : row))
+    );
+  }
+
+  // AÑADIDO: error de un campo de un hijo por índice
+  childFieldError(index: number, field: string): string {
+    return this.fieldErrors()[`child.${index}.${field}`] ?? '';
   }
 
   saveEdit(): void {
@@ -238,16 +317,16 @@ export class DiscipleDetail {
       gender: this.editGender(),
       birthDate: this.editBirthDate(),
       occupation: this.editOccupation(),
-      phoneCodeNumber: this.editPhoneCodeNumber(),
-      phoneNumber: this.editPhoneNumber(),
-      address: this.editAddress(),
-      dni: this.editDni(),
+      phoneCodeNumber: this.editPhoneNumber().trim() ? this.editPhoneCodeNumber() : null,
+      phoneNumber: this.editPhoneNumber().trim() || null,
+      address: this.editAddress().trim() || null,
+      dni: this.editDni().trim() || null,
       maritalStatus: this.editMaritalStatus(),
       coupleName: this.requiresCoupleName() ? this.editCoupleName() : null,
       spiritualLevel: this.editSpiritualLevel(),
       isLeader: this.editIsLeader(),
-      children: d.children.map((child) => ({
-        id: child.id,
+      children: this.editChildren().map((child) => ({
+        id: child.id ?? undefined,
         firstName: child.firstName,
         lastName: child.lastName,
         gender: child.gender,
@@ -260,6 +339,7 @@ export class DiscipleDetail {
         this.isSaving.set(false);
         this.isEditing.set(false);
         this.toastService.show('Modificación de datos exitosa', 'success');
+        this.disciplesService.reloadDisciple();
         this.disciplesService.selectDisciple(Number(this.id()));
       },
       error: (httpError) => {
@@ -285,6 +365,13 @@ export class DiscipleDetail {
       coupleName: this.editCoupleName(),
       spiritualLevel: this.editSpiritualLevel(),
       isLeader: this.editIsLeader(),
+      children: this.editChildren().map((c) => ({
+        id: c.id,
+        firstName: c.firstName,
+        lastName: c.lastName,
+        gender: c.gender,
+        birthDate: c.birthDate,
+      })),
     });
   }
 

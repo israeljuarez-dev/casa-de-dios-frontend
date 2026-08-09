@@ -6,7 +6,7 @@
       [class.border-primary]="toast.type === 'success'"
       [class.bg-red-50]="toast.type === 'error'"
       [class.border-error]="toast.type === 'error'"
-      [class.bg-warning/10]="toast.type === 'info'"
+      [class.bg-warning]="toast.type === 'info'"
       [class.border-warning]="toast.type === 'info'"
     >
       <span
@@ -21,7 +21,11 @@
           @default { info }
         }
       </span>
-      <span class="flex-1 text-base font-semibold text-on-surface">{{ toast.message }}</span>
+      <span
+        class="flex-1 text-base font-semibold"
+        [class.text-on-surface]="toast.type !== 'info'"
+        [class.text-warning-content]="toast.type === 'info'"
+        >{{ toast.message }}</span>
       <button
         type="button"
         (click)="toastService.dismiss(toast.id)"

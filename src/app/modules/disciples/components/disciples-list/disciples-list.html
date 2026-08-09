@@ -140,10 +140,13 @@
                         <span class="material-symbols-outlined text-lg mr-1">visibility</span>
                         Ver
                       </a>
-                      <button type="button" (click)="openEditForm(disciple)" class="inline-flex items-center px-2 py-1 text-xs font-bold text-on-surface-variant rounded transition-colors hover:text-secondary hover:bg-secondary/15">
+                      <a [routerLink]="['/disciples', disciple.id]"
+                        [queryParams]="{ edit: true }"
+                        class="inline-flex items-center px-2 py-1 text-xs font-bold text-on-surface-variant rounded transition-colors hover:text-secondary hover:bg-secondary/15"
+                      >
                         <span class="material-symbols-outlined text-lg mr-1">edit</span>
                         Editar
-                      </button>
+                      </a>
                       <button type="button" (click)="requestDelete(disciple)" class="inline-flex items-center px-2 py-1 text-xs font-bold text-on-surface-variant rounded transition-colors hover:text-error hover:bg-error/15">
                         <span class="material-symbols-outlined text-lg mr-1">delete</span>
                         Eliminar

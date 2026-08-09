@@ -41,10 +41,10 @@ export interface DiscipleUpdateRequest {
   gender: Gender;
   birthDate: string;
   occupation: string;
-  phoneCodeNumber: string;
-  phoneNumber: string;
-  address: string;
-  dni: string;
+  phoneCodeNumber: string | null;
+  phoneNumber: string | null;
+  address: string | null;
+  dni: string | null;
   maritalStatus: MaritalStatus;
   coupleName: string | null;
   spiritualLevel: SpiritualLevel;

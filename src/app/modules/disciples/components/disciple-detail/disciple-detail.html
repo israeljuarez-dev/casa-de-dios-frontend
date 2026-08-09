@@ -23,10 +23,21 @@
 
   <!-- MODIFICADO: botones alternan según isEditing() -->
   <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
-    <a routerLink="/disciples" class="inline-flex items-center px-4 py-2 bg-primary-fixed text-on-primary-fixed rounded-lg font-bold shadow-sm transition-all hover:bg-primary-fixed-dim">
-      <span class="material-symbols-outlined mr-2">arrow_back</span>
-      Volver al listado
-    </a>
+    @if (isEditing()) {
+      <button
+        type="button"
+        (click)="cancelEditAndGoBack()"
+        class="inline-flex items-center px-4 py-2 bg-primary-fixed text-on-primary-fixed rounded-lg font-bold shadow-sm transition-all hover:bg-primary-fixed-dim"
+      >
+        <span class="material-symbols-outlined mr-2">arrow_back</span>
+        Volver al listado
+      </button>
+    } @else {
+      <a routerLink="/disciples" class="inline-flex items-center px-4 py-2 bg-primary-fixed text-on-primary-fixed rounded-lg font-bold shadow-sm transition-all hover:bg-primary-fixed-dim">
+        <span class="material-symbols-outlined mr-2">arrow_back</span>
+        Volver al listado
+      </a>
+    }
     <div class="flex items-center gap-3">
       @if (!isEditing()) {
         <!-- Modo lectura: Eliminar + Editar -->
@@ -319,25 +330,110 @@
       }
 
       <!-- Hijos — siempre solo lectura -->
-      @if (d.hasChildren) {
-        <div>
+      <!-- Hijos: solo lectura en modo lectura, editable en modo edición -->
+      @if (isEditing()) {
+        <div class="mt-4">
           <p class="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">Hijos</p>
-          <div class="space-y-2">
-            @for (child of d.children; track child.id) {
-              <div class="flex items-center gap-3 p-3 border border-outline-variant/30 rounded-lg transition-colors hover:bg-surface">
-                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
-                  <span class="material-symbols-outlined text-lg">child_care</span>
+          <div class="space-y-3">
+            @for (child of editChildren(); track child.key; let i = $index) {
+              <div class="relative p-4 rounded-xl border-2 border-primary/40 bg-white">
+                <button
+                  type="button"
+                  (click)="removeChild(child.key)"
+                  class="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 text-xs font-bold text-error rounded-lg transition-colors hover:bg-error/10"
+                >
+                  <span class="material-symbols-outlined text-sm">delete</span>
+                </button>
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                  <div class="space-y-1">
+                    <label class="text-xs uppercase font-bold text-on-surface-variant">Nombres</label>
+                    <input
+                      type="text"
+                      [ngModel]="child.firstName"
+                      (ngModelChange)="updateChildField(child.key, 'firstName', $event)"
+                      [name]="'childFirstName' + child.key"
+                      class="w-full bg-white border rounded-lg px-3 py-2 text-sm outline-none transition-all focus:ring-4"
+                      [class.border-outline-variant]="!childFieldError(i, 'firstName')"
+                      [class.border-error]="childFieldError(i, 'firstName')"
+                      [class.focus:border-primary]="!childFieldError(i, 'firstName')"
+                      [class.focus:ring-primary/10]="!childFieldError(i, 'firstName')"
+                    />
+                    @if (childFieldError(i, 'firstName')) {
+                      <p class="text-xs font-bold text-error">{{ childFieldError(i, 'firstName') }}</p>
+                    }
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs uppercase font-bold text-on-surface-variant">Apellidos</label>
+                    <input
+                      type="text"
+                      [ngModel]="child.lastName"
+                      (ngModelChange)="updateChildField(child.key, 'lastName', $event)"
+                      [name]="'childLastName' + child.key"
+                      class="w-full bg-white border rounded-lg px-3 py-2 text-sm outline-none transition-all focus:ring-4"
+                      [class.border-outline-variant]="!childFieldError(i, 'lastName')"
+                      [class.border-error]="childFieldError(i, 'lastName')"
+                      [class.focus:border-primary]="!childFieldError(i, 'lastName')"
+                      [class.focus:ring-primary/10]="!childFieldError(i, 'lastName')"
+                    />
+                    @if (childFieldError(i, 'lastName')) {
+                      <p class="text-xs font-bold text-error">{{ childFieldError(i, 'lastName') }}</p>
+                    }
+                  </div>
                 </div>
-                <div>
-                  <p class="text-sm font-bold text-on-surface">{{ child.firstName }} {{ child.lastName }}</p>
-                  <p class="text-xs text-on-surface-variant">
-                    {{ child.age }} años ({{ formatChildBirthDate(child.birthDate) }})
-                  </p>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="space-y-1">
+                    <label class="text-xs uppercase font-bold text-on-surface-variant">Género</label>
+                    <app-select
+                      [options]="genderOptions"
+                      [value]="child.gender"
+                      (valueChange)="updateChildField(child.key, 'gender', $event)"
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs uppercase font-bold text-on-surface-variant">Fecha de nacimiento</label>
+                    <app-date-picker
+                      [value]="child.birthDate"
+                      (valueChange)="updateChildField(child.key, 'birthDate', $event)"
+                      [maxDate]="todayIso"
+                    />
+                    @if (childFieldError(i, 'birthDate')) {
+                      <p class="text-xs font-bold text-error">{{ childFieldError(i, 'birthDate') }}</p>
+                    }
+                  </div>
                 </div>
               </div>
             }
+            <button
+              type="button"
+              (click)="addChild()"
+              class="flex items-center justify-center gap-2 w-full py-3 border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant text-sm font-bold transition-all hover:border-primary hover:bg-primary/5 hover:text-primary"
+            >
+              <span class="material-symbols-outlined text-sm">add_circle</span>
+              Agregar hijo
+            </button>
           </div>
         </div>
+      } @else {
+        @if (d.hasChildren) {
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">Hijos</p>
+            <div class="space-y-2">
+              @for (child of d.children; track child.id) {
+                <div class="flex items-center gap-3 p-3 border border-outline-variant/30 rounded-lg transition-colors hover:bg-surface">
+                  <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+                    <span class="material-symbols-outlined text-lg">child_care</span>
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-on-surface">{{ child.firstName }} {{ child.lastName }}</p>
+                    <p class="text-xs text-on-surface-variant">
+                      {{ child.age }} años ({{ formatChildBirthDate(child.birthDate) }})
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
       }
 
       <!-- Padres — siempre solo lectura -->

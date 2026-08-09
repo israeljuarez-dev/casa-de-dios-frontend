@@ -128,4 +128,8 @@ export class DisciplesService {
   setInviterSearchQuery(query: string): void {
     this.inviterSearchQuery.set(query);
   }
+
+  reloadDisciple(): void {
+    this.discipleResource.reload();
+  }
 }

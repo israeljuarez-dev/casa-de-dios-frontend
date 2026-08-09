@@ -76,6 +76,7 @@ export class DisciplesList {
     })),
   ];
 
+  
   applyFilters(): void {
     this.disciplesService.updateFilters({
       firstName: this.firstNameFilter() || undefined,
