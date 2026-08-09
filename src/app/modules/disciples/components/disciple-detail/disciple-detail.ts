@@ -12,6 +12,7 @@ import { SpiritualLevelLabelPipe } from '@modules/disciples/pipes/spiritual-leve
 import { MaritalStatusLabelPipe } from '@modules/disciples/pipes/marital-status-label.pipe';
 import { ConfirmDialog } from '@shared/components/confirm-dialog/confirm-dialog';
 import { DiscipleForm } from '@modules/disciples/components/disciple-form/disciple-form';
+import { BirthdayStatusPipe } from '@modules/disciples/pipes/birthday-status.pipe';
 
 @Component({
   selector: 'app-disciple-detail',
@@ -20,7 +21,8 @@ import { DiscipleForm } from '@modules/disciples/components/disciple-form/discip
     SpiritualLevelLabelPipe, 
     MaritalStatusLabelPipe,
     ConfirmDialog,
-    DiscipleForm
+    DiscipleForm,
+    BirthdayStatusPipe,
   ],
   templateUrl: './disciple-detail.html',
   styleUrl: './disciple-detail.css',
@@ -43,6 +45,8 @@ export class DiscipleDetail {
 
   showEditForm = signal<boolean>(false);
 
+
+  isEditing = signal<boolean>(false);
 
   fullName = computed(() => {
     const d = this.disciple();
@@ -73,10 +77,27 @@ export class DiscipleDetail {
     return `${Number(day)} de ${months[Number(month) - 1]}, ${year} (${d.age} años)`;
   });
 
+  genderDisplay = computed(() => {
+    const d = this.disciple();
+    if (!d) return '';
+    return d.gender === 'MALE' ? '🧔 Masculino' : '👩 Femenino';
+  });
+
+  nextBirthdayLabel = computed(() => {
+    const d = this.disciple();
+    if (!d) return '';
+    const nextBirthdayYear = new Date(d.birthdayAlert.nextBirthday).getFullYear();
+    return `Próximo cumpleaños (${nextBirthdayYear})`;
+  });
+
   constructor() {
     effect(() => {
       this.disciplesService.selectDisciple(Number(this.id()));
     });
+  }
+
+  enterEditMode(): void {
+    this.isEditing.set(true);
   }
 
   whatsappLink(): string {

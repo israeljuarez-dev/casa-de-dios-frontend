@@ -27,6 +27,12 @@ export interface DiscipleInviterResponse {
   lastName: string;
 }
 
+export interface DiscipleParentResponse {
+  id: number;
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+}
 export interface DiscipleResponse {
   id: number;
   firstName: string;
@@ -47,4 +53,5 @@ export interface DiscipleResponse {
   children: DiscipleChildResponse[];
   birthdayAlert: BirthdayAlertResponse;
   invitedBy: DiscipleInviterResponse | null;
+  parents: DiscipleParentResponse[];
 }

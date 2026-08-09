@@ -4,6 +4,9 @@ import { MaritalStatus, SpiritualLevel } from '@modules/disciples/enums/disciple
 
 const DRAFT_STORAGE_KEY = 'casa_de_dios_disciple_draft';
 
+// Incrementar este número cada vez que cambie la estructura del formulario
+const DRAFT_VERSION = 2;
+
 export interface DiscipleDraftChild {
   firstName: string;
   lastName: string;
@@ -33,18 +36,27 @@ export interface DiscipleDraft {
 
 @Service()
 export class DiscipleDraftService {
+
   save(draft: DiscipleDraft): void {
-    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({
+      version: DRAFT_VERSION,
+      ...draft,
+    }));
   }
 
   load(): DiscipleDraft | null {
     const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
     if (!raw) return null;
-    try {
-      return JSON.parse(raw);
-    } catch {
+
+    const parsed = JSON.parse(raw);
+
+    // Si la versión no coincide, descartar el draft silenciosamente
+    if (parsed.version !== DRAFT_VERSION) {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
       return null;
     }
+
+    return parsed;
   }
 
   clear(): void {
