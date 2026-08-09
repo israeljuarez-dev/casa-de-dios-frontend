@@ -6,14 +6,14 @@
       [class.border-primary]="toast.type === 'success'"
       [class.bg-red-50]="toast.type === 'error'"
       [class.border-error]="toast.type === 'error'"
-      [class.bg-secondary-container]="toast.type === 'info'"
-      [class.border-secondary]="toast.type === 'info'"
+      [class.bg-warning/10]="toast.type === 'info'"
+      [class.border-warning]="toast.type === 'info'"
     >
       <span
         class="material-symbols-outlined text-2xl shrink-0"
         [class.text-primary]="toast.type === 'success'"
         [class.text-error]="toast.type === 'error'"
-        [class.text-secondary]="toast.type === 'info'"
+        [class.text-warning]="toast.type === 'info'"
       >
         @switch (toast.type) {
           @case ('success') { check_circle }

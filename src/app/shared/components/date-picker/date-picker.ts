@@ -45,7 +45,7 @@ export class DatePicker {
 
   private today = new Date();
   viewYear = signal<number>(this.today.getFullYear());
-  viewMonth = signal<number>(this.today.getMonth());
+  viewMonth = signal<number>(0);
 
   monthOptions: SelectOption<number>[] = MONTH_LABELS.map((label, index) => ({ label, value: index }));
 
