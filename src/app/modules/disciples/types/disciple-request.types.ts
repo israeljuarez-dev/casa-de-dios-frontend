@@ -53,6 +53,7 @@ export interface DiscipleUpdateRequest {
 }
 
 export interface DiscipleSearchCriteria extends PaginationCriteria {
+  search?: string;  
   firstName?: string;
   lastName?: string;
   gender?: Gender;

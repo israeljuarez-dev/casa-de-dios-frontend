@@ -15,7 +15,6 @@ import { DisciplesService } from '@modules/disciples/services/disciples.service'
 import { SpiritualLevelLabelPipe } from '@modules/disciples/pipes/spiritual-level-label.pipe';
 import { MaritalStatusLabelPipe } from '@modules/disciples/pipes/marital-status-label.pipe';
 import { ConfirmDialog } from '@shared/components/confirm-dialog/confirm-dialog';
-import { DiscipleForm } from '@modules/disciples/components/disciple-form/disciple-form';
 import { BirthdayStatusPipe } from '@modules/disciples/pipes/birthday-status.pipe';
 import { ToastService } from '@core/services/toast.service';
 import { Select, SelectOption } from '@shared/components/select/select';
@@ -68,7 +67,6 @@ interface EditChildRow {
     SpiritualLevelLabelPipe, 
     MaritalStatusLabelPipe,
     ConfirmDialog,
-    DiscipleForm,
     BirthdayStatusPipe,
     Select,
     DatePicker,

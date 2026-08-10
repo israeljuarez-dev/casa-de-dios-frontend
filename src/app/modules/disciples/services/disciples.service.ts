@@ -122,8 +122,13 @@ export class DisciplesService {
   private buildQueryParams(criteria: DiscipleSearchCriteria): Record<string, string | number | boolean> {
     const params: Record<string, string | number | boolean> = {};
 
-    if (criteria.firstName) params['firstName'] = criteria.firstName;
-    if (criteria.lastName) params['lastName'] = criteria.lastName;
+    if (criteria.search) {
+      params['search'] = criteria.search;
+    } else {
+      if (criteria.firstName) params['firstName'] = criteria.firstName;
+      if (criteria.lastName) params['lastName'] = criteria.lastName;
+    }
+    
     if (criteria.gender) params['gender'] = criteria.gender;
     if (criteria.spiritualLevel) params['spiritualLevel'] = criteria.spiritualLevel;
     if (criteria.maritalStatus) params['maritalStatus'] = criteria.maritalStatus;

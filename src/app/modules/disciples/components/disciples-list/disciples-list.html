@@ -33,26 +33,14 @@
 <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-outline-variant">
 
   <div class="flex flex-wrap items-center gap-4 p-4 border-b border-outline-variant/30">
-    <div class="relative flex-1 min-w-50">
-      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">person</span>
+    <!-- un solo input de búsqueda combinada -->
+    <div class="relative flex-1 min-w-72">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
       <input
         type="text"
-        placeholder="Buscar por nombres"
-        [ngModel]="firstNameFilter()"
-        (ngModelChange)="firstNameFilter.set($event)"
-        (keyup.enter)="applyFilters()"
-        class="w-full pl-10 pr-4 py-2 border border-outline-variant rounded-lg text-sm outline-none transition-all focus:ring-2 focus:ring-primary/30 focus:border-primary"
-      />
-    </div>
-
-    <div class="relative flex-1 min-w-50">
-      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">badge</span>
-      <input
-        type="text"
-        placeholder="Buscar por apellidos"
-        [ngModel]="lastNameFilter()"
-        (ngModelChange)="lastNameFilter.set($event)"
-        (keyup.enter)="applyFilters()"
+        placeholder="Buscar discípulo..."
+        [ngModel]="searchFilter()"
+        (ngModelChange)="onSearchChange($event)"
         class="w-full pl-10 pr-4 py-2 border border-outline-variant rounded-lg text-sm outline-none transition-all focus:ring-2 focus:ring-primary/30 focus:border-primary"
       />
     </div>
@@ -64,11 +52,6 @@
     <div class="min-w-40">
       <app-select [options]="genderOptions" [(value)]="genderFilter" placeholder="Género" />
     </div>
-
-    <button (click)="applyFilters()" class="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg transition-colors hover:bg-primary-container">
-      <span class="material-symbols-outlined mr-2 text-lg">search</span>
-      Buscar
-    </button>
   </div>
 
   @switch (viewState()) {

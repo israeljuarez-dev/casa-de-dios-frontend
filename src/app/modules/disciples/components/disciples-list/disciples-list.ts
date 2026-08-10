@@ -1,5 +1,6 @@
 import { 
   Component, 
+  effect, 
   inject, 
   signal 
 } from '@angular/core';
@@ -20,6 +21,8 @@ import { Gender } from '@core/types/gender.types';
 import { GENDER_LABELS } from '@modules/disciples/pipes/gender-label.pipe';
 
 type ListViewState = 'error' | 'initialLoading' | 'empty' | 'ready';
+
+const SEARCH_DEBOUNCE_MS = 400;
 
 @Component({
   selector: 'app-disciples-list',
@@ -58,6 +61,9 @@ export class DisciplesList {
 
   isExporting = signal<boolean>(false);
 
+  searchFilter = signal<string>('');
+  private searchDebounceId: ReturnType<typeof setTimeout> | null = null
+
   viewState = computed<ListViewState>(() => {
     if (this.error()) return 'error';
     if (this.isLoading() && this.disciples().length === 0) return 'initialLoading';
@@ -78,7 +84,28 @@ export class DisciplesList {
     })),
   ];
 
-  
+  constructor() {
+    // Selects: búsqueda inmediata al cambiar — un solo clic, sin riesgo de peticiones múltiples
+    effect(() => {
+      const gender = this.genderFilter();
+      const spiritualLevel = this.spiritualLevelFilter();
+      this.disciplesService.updateFilters({
+        gender: (gender as Gender) || undefined,
+        spiritualLevel: (spiritualLevel as SpiritualLevel) || undefined,
+      });
+    });
+  }
+
+  onSearchChange(value: string): void {
+    this.searchFilter.set(value);
+    if (this.searchDebounceId) clearTimeout(this.searchDebounceId);
+    this.searchDebounceId = setTimeout(() => {
+      this.disciplesService.updateFilters({
+        search: value.trim() || undefined,
+      });
+    }, SEARCH_DEBOUNCE_MS);
+  }
+
   applyFilters(): void {
     this.disciplesService.updateFilters({
       firstName: this.firstNameFilter() || undefined,

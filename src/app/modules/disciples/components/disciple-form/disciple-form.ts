@@ -18,7 +18,6 @@ import { DatePicker } from '@shared/components/date-picker/date-picker';
 import { InvitedByPicker } from '@modules/disciples/components/invited-by-picker/invited-by-picker';
 import { DiscipleDraftService } from '@modules/disciples/services/disciple-draft.service';
 import { ToastService } from '@core/services/toast.service';
-import { ApiErrorResponse } from '@core/types/api-response.types';
 import {
   DiscipleChildRegisterRequest,
   DiscipleChildUpdateRequest,
