@@ -12,6 +12,7 @@ import { PaginationResponse } from '@core/types/pagination.types';
 import { DisciplesApiService } from '@modules/disciples/services/disciples-api.service';
 import { DiscipleSearchCriteria } from '@modules/disciples/types/disciple-request.types';
 import { DiscipleResponse } from '@modules/disciples/types/disciple-response.types';
+import { Observable } from 'rxjs';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -123,6 +124,10 @@ export class DisciplesService {
     if (criteria.sortDirection) params['sortDirection'] = criteria.sortDirection;
 
     return params;
+  }
+
+  exportExcel(): Observable<Blob> {
+    return this.disciplesApiService.exportExcel(this.searchCriteria());
   }
 
   setInviterSearchQuery(query: string): void {

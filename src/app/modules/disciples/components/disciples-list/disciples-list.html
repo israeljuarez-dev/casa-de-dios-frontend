@@ -8,10 +8,26 @@
     }
   </div>
 
-  <button type="button" (click)="openCreateForm()" class="inline-flex items-center justify-center px-6 py-2.5 bg-primary text-white font-semibold rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all">
-    <span class="material-symbols-outlined mr-2">person_add</span>
-    Nuevo discípulo
-  </button>
+  <div class="flex items-center gap-3">
+    <!-- botón exportar Excel con estilo secundario -->
+    <button
+      type="button"
+      (click)="exportExcel()"
+      [disabled]="isExporting()"
+      class="inline-flex items-center justify-center px-5 py-2.5 border-2 border-primary text-primary font-semibold rounded-xl transition-all hover:bg-primary/10 active:scale-95 disabled:opacity-50"
+    >
+      <span class="material-symbols-outlined mr-2">download</span>
+      {{ isExporting() ? 'Exportando...' : 'Exportar Excel' }}
+    </button>
+    <button
+      type="button"
+      (click)="openCreateForm()"
+      class="inline-flex items-center justify-center px-6 py-2.5 bg-primary text-white font-semibold rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all"
+    >
+      <span class="material-symbols-outlined mr-2">person_add</span>
+      Nuevo discípulo
+    </button>
+  </div>
 </div>
 
 <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-outline-variant">

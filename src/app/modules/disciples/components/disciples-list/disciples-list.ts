@@ -56,6 +56,8 @@ export class DisciplesList {
   formMode = signal<'create' | 'edit' | null>(null);
   editingDiscipleId = signal<number | undefined>(undefined);
 
+  isExporting = signal<boolean>(false);
+
   viewState = computed<ListViewState>(() => {
     if (this.error()) return 'error';
     if (this.isLoading() && this.disciples().length === 0) return 'initialLoading';
@@ -197,4 +199,21 @@ export class DisciplesList {
     });
   }
 
+  exportExcel(): void {
+    this.isExporting.set(true);
+    this.disciplesService.exportExcel().subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Discipulos_${Date.now()}.xlsx`;
+        link.click();
+        URL.revokeObjectURL(url);
+        this.isExporting.set(false);
+      },
+      error: () => {
+        this.isExporting.set(false);
+      },
+    });
+  }
 }
