@@ -94,6 +94,9 @@ export class DisciplesService {
   updateFilters(filters: Partial<DiscipleSearchCriteria>): void {
     this.searchCriteria.update((current) => ({
       ...current,
+      search: undefined,
+      firstName: undefined,
+      lastName: undefined,
       ...filters,
       page: 0,
     }));
@@ -128,7 +131,7 @@ export class DisciplesService {
       if (criteria.firstName) params['firstName'] = criteria.firstName;
       if (criteria.lastName) params['lastName'] = criteria.lastName;
     }
-    
+
     if (criteria.gender) params['gender'] = criteria.gender;
     if (criteria.spiritualLevel) params['spiritualLevel'] = criteria.spiritualLevel;
     if (criteria.maritalStatus) params['maritalStatus'] = criteria.maritalStatus;
