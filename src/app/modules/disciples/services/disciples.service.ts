@@ -50,6 +50,10 @@ export class DisciplesService {
   inviterSearchResults = computed(() => this.inviterSearchResource.value()?.data.content ?? []);
   inviterSearchLoading = computed(() => this.inviterSearchResource.isLoading());
   
+  totalDisciplesCount = computed(() =>
+    this.totalCountResource.value()?.data.totalElements ?? null
+  );
+  
   private disciplesResource = httpResource<ApiResponse<PaginationResponse<DiscipleResponse>>>(() => ({
     url: this.endpoints.disciples.list,
     params: this.buildQueryParams(this.searchCriteria()),
@@ -68,6 +72,11 @@ export class DisciplesService {
       params: { firstName: query, size: 8 },
     };
   });
+
+  private totalCountResource = httpResource<ApiResponse<PaginationResponse<DiscipleResponse>>>(() => ({
+    url: this.endpoints.disciples.list,
+    params: { page: 0, size: 1 },
+  }));
 
   constructor() {
     effect(() => {

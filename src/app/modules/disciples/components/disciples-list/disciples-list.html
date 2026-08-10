@@ -1,9 +1,9 @@
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
   <div>
     <h2 class="text-2xl font-bold text-primary leading-none">Discípulos</h2>
-    @if (pagination(); as page) {
+    @if (disciplesService.totalDisciplesCount(); as total) {
       <p class="text-sm text-on-surface-variant mt-2">
-        <span class="font-bold text-primary">{{ page.totalElements }}</span> discípulos registrados en el sistema
+        <span class="font-bold text-primary">{{ total }}</span> discípulos registrados en el sistema
       </p>
     }
   </div>
