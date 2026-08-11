@@ -23,8 +23,8 @@ export interface DiscipleRegisterRequest {
   birthDate: string;
   gender: Gender;
   occupation: string;
-  phoneCodeNumber: string;
-  phoneNumber: string;
+  phoneCodeNumber: string | null;
+  phoneNumber: string | null; 
   address: string;
   dni: string;
   maritalStatus: MaritalStatus;
