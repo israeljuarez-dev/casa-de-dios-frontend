@@ -120,6 +120,9 @@ export class DiscipleDetail {
 
   editChildren = signal<EditChildRow[]>([]);
 
+  editDniHasLetters = signal<boolean>(false);
+  private editDniLetterWarningTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
   // Snapshot para detectar si hubo cambios
   private originalSnapshot = '';
 
@@ -413,5 +416,19 @@ export class DiscipleDetail {
   onDiscipleUpdated(): void {
     this.showEditForm.set(false);
     this.disciplesService.selectDisciple(Number(this.id()));
+  }
+  
+  onEditDniInput(rawValue: string): void {
+    const digitsOnly = rawValue.replace(/\D/g, '');
+    this.editDni.set(digitsOnly.slice(0, 8));
+
+    if (digitsOnly.length !== rawValue.length) {
+      this.editDniHasLetters.set(true);
+      if (this.editDniLetterWarningTimeoutId) clearTimeout(this.editDniLetterWarningTimeoutId);
+      this.editDniLetterWarningTimeoutId = setTimeout(
+        () => this.editDniHasLetters.set(false),
+        2000
+      );
+    }
   }
 }

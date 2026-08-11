@@ -171,7 +171,7 @@
             <input
               type="text"
               [ngModel]="editDni()"
-              (ngModelChange)="editDni.set($event); clearFieldError('dni')"
+              (ngModelChange)="onEditDniInput($event); clearFieldError('dni')"
               name="dni"
               maxlength="8"
               class="w-full bg-white border rounded-xl px-4 py-2.5 text-sm outline-none transition-all focus:ring-4"
@@ -183,7 +183,9 @@
               [class.focus:ring-error/10]="fieldError('dni')"
               placeholder="8 dígitos"
             />
-            @if (fieldError('dni')) {
+            @if (editDniHasLetters()) {
+              <p class="text-xs font-bold text-error ml-1">Solo se permiten números.</p>
+            } @else if (fieldError('dni')) {
               <p class="text-xs font-bold text-error ml-1">{{ fieldError('dni') }}</p>
             }
           } @else {

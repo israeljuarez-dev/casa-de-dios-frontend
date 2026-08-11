@@ -110,9 +110,10 @@ export class PhoneInput {
     const digitsOnly = rawValue.replace(/\D/g, '');
     const maxDigits = this.selectedCountry()?.phoneFormat?.totalDigits ?? 15;
 
-    // Detectar letras
     const nonDigitNonSpace = rawValue.replace(/[\d\s]/g, '');
-    if (nonDigitNonSpace.length > 0) {
+    const hasInvalidChars = nonDigitNonSpace.length > 0;
+
+    if (hasInvalidChars) {
       this.hasLetters.set(true);
       if (this.letterWarningTimeoutId) clearTimeout(this.letterWarningTimeoutId);
       this.letterWarningTimeoutId = setTimeout(() => this.hasLetters.set(false), 2000);
@@ -120,12 +121,9 @@ export class PhoneInput {
       this.hasLetters.set(false);
     }
 
-    // Detectar límite — se mantiene activo mientras siga al máximo de dígitos
-    // Se apaga solo cuando el usuario borra y queda por debajo del límite
     if (digitsOnly.length > maxDigits) {
       this.hasReachedLimit.set(true);
     } else {
-      // Apagar el aviso en cuanto el número ya está dentro del límite
       this.hasReachedLimit.set(false);
     }
 
@@ -135,7 +133,13 @@ export class PhoneInput {
       const element = this.phoneInputRef()?.nativeElement;
       if (!element) return;
       const groups = this.selectedCountry()?.phoneFormat?.groups;
-      const newPosition = this.calculateCursorPosition(digitsBeforeCursor, groups);
+
+      // MODIFICADO: si había caracteres inválidos O se superó el límite,
+      // posicionar cursor al final para que el usuario pueda borrar fácilmente
+      const newPosition = (hasInvalidChars || this.hasReachedLimit())
+        ? element.value.length
+        : this.calculateCursorPosition(digitsBeforeCursor, groups);
+
       element.setSelectionRange(newPosition, newPosition);
     });
   }
