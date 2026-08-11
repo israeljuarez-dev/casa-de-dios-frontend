@@ -200,6 +200,11 @@ export class DiscipleDetail {
     return `Próximo cumpleaños (${nextBirthdayYear})`;
   });
 
+  editDniIsValid = computed(() => {
+    const value = this.editDni();
+    return value.length === 0 || value.length === 8;
+  });
+
   constructor() {
     effect(() => {
       this.disciplesService.selectDisciple(Number(this.id()));
@@ -303,6 +308,11 @@ export class DiscipleDetail {
     if (currentSnapshot === this.originalSnapshot) {
       this.toastService.show('No se modificó ningún dato', 'info');
       this.isEditing.set(false);
+      return;
+    }
+
+    if (!this.editDniIsValid()) {
+      this.toastService.show('El DNI debe tener exactamente 8 dígitos o dejarse vacío', 'error');
       return;
     }
 
@@ -417,7 +427,7 @@ export class DiscipleDetail {
     this.showEditForm.set(false);
     this.disciplesService.selectDisciple(Number(this.id()));
   }
-  
+
   onEditDniInput(rawValue: string): void {
     const digitsOnly = rawValue.replace(/\D/g, '');
     this.editDni.set(digitsOnly.slice(0, 8));
