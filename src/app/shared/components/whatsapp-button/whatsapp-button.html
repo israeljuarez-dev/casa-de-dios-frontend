@@ -1,0 +1,12 @@
+@if (whatsappUrl()) {
+  
+  <a [href]="whatsappUrl()!"
+    target="_blank"
+    class="flex items-center text-secondary text-sm transition-colors hover:text-primary"
+  >
+    <span class="material-symbols-outlined text-sm mr-1">chat</span>
+    {{ phoneNumber() }}
+  </a>
+} @else {
+  <span class="text-on-surface-variant">—</span>
+}

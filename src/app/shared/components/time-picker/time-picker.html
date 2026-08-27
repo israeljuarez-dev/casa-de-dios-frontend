@@ -1,0 +1,68 @@
+<div class="relative">
+  <button
+    type="button"
+    class="w-full flex items-center gap-2 pl-4 pr-10 py-2 bg-white border border-outline-variant rounded-lg text-sm text-left outline-none transition-all focus:ring-2 focus:ring-primary/30 focus:border-primary"
+    (click)="toggle()"
+    >
+    <span [class.text-outline]="!value()">{{ displayLabel() }}</span>
+    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">
+        expand_more
+    </span>
+  </button>
+
+  @if (isOpen()) {
+    <div class="absolute z-20 mt-1 min-w-full bg-white border border-outline-variant rounded-lg shadow-md overflow-hidden">
+      <div class="flex">
+
+        <!-- Horas -->
+        <div class="flex-1 max-h-48 overflow-y-auto border-r border-outline-variant/50">
+          <p class="px-3 py-1.5 text-xs font-bold text-outline uppercase tracking-wider sticky top-0 bg-white border-b border-outline-variant/30">
+            Hora
+          </p>
+          @for (hour of hours; track hour) {
+            <button
+              type="button"
+              class="w-full px-4 py-2 text-sm text-left transition-colors"
+              [class.bg-primary]="hour === selectedHour()"
+              [class.text-white]="hour === selectedHour()"
+              [class.hover:bg-surface-container-low]="hour !== selectedHour()"
+              (click)="selectHour(hour)"
+            >
+              {{ hour }}
+            </button>
+          }
+        </div>
+
+        <!-- Minutos -->
+        <div class="flex-1 max-h-48 overflow-y-auto">
+          <p class="px-3 py-1.5 text-xs font-bold text-outline uppercase tracking-wider sticky top-0 bg-white border-b border-outline-variant/30">
+            Min
+          </p>
+          @for (minute of minutes; track minute) {
+            <button
+              type="button"
+              class="w-full px-4 py-2 text-sm text-left transition-colors"
+              [class.bg-primary]="minute === selectedMinute()"
+              [class.text-white]="minute === selectedMinute()"
+              [class.hover:bg-surface-container-low]="minute !== selectedMinute()"
+              (click)="selectMinute(minute)"
+            >
+              {{ minute }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Limpiar -->
+      <div class="border-t border-outline-variant/30">
+        <button
+          type="button"
+          class="w-full px-4 py-2 text-xs font-bold text-error hover:bg-error/5 transition-colors text-left"
+          (click)="clear()"
+        >
+          Sin definir
+        </button>
+      </div>
+    </div>
+  }
+</div>

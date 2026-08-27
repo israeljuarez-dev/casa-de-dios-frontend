@@ -19,4 +19,21 @@ export class ApiEndpoints {
     delete: (id: number) => `${this.baseUrl}/disciples/${id}`,
     exportExcel: `${this.baseUrl}/disciples/export/excel`,
   };
+
+  readonly cellGroups = {
+    list:                   `${this.baseUrl}/cell-groups`,
+    getById:                (id: number) => `${this.baseUrl}/cell-groups/${id}`,
+    register:               `${this.baseUrl}/cell-groups`,
+    update:                 (id: number) => `${this.baseUrl}/cell-groups/${id}`,
+    delete:                 (id: number) => `${this.baseUrl}/cell-groups/${id}`,
+    exportExcel:            `${this.baseUrl}/cell-groups/export/excel`,
+    pastorCoreTwelve:       `${this.baseUrl}/cell-groups/pastor-core-twelve`,
+    members:                (id: number) => `${this.baseUrl}/cell-groups/${id}/members`,
+    removeMember:           (id: number, discipleId: number) => `${this.baseUrl}/cell-groups/${id}/members/${discipleId}`,
+    moveMember:             (id: number, discipleId: number) => `${this.baseUrl}/cell-groups/${id}/members/${discipleId}/move`,
+    markCoreTwelve:         (id: number, discipleId: number) => `${this.baseUrl}/cell-groups/${id}/members/${discipleId}/core-twelve`,
+    unmarkCoreTwelve:       (id: number, discipleId: number) => `${this.baseUrl}/cell-groups/${id}/members/${discipleId}/core-twelve`,
+    markPastorCoreTwelve:   (id: number, discipleId: number) => `${this.baseUrl}/cell-groups/${id}/members/${discipleId}/pastor-core-twelve`,
+    unmarkPastorCoreTwelve: (id: number, discipleId: number) => `${this.baseUrl}/cell-groups/${id}/members/${discipleId}/pastor-core-twelve`,
+  };
 }

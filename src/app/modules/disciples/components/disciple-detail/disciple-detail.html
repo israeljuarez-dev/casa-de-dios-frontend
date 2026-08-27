@@ -9,7 +9,7 @@
   </div>
 } @else if (disciple(); as d) {
 
-  @if (d.birthdayAlert.isToday) {
+  @if (d.birthdayAlert?.isToday) {
     <div class="flex items-center justify-between px-6 py-4 mb-6 bg-error-soft/10 border border-error-soft/20 rounded-xl shadow-sm">
       <div class="flex items-center text-error-soft">
         <span class="material-symbols-outlined mr-3 text-2xl">cake</span>
@@ -21,26 +21,20 @@
     </div>
   }
 
-  <!-- MODIFICADO: botones alternan según isEditing() -->
   <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
     @if (isEditing()) {
-      <button
-        type="button"
-        (click)="cancelEditAndGoBack()"
-        class="inline-flex items-center px-4 py-2 bg-primary-fixed text-on-primary-fixed rounded-lg font-bold shadow-sm transition-all hover:bg-primary-fixed-dim"
-      >
-        <span class="material-symbols-outlined mr-2">arrow_back</span>
-        Volver al listado
-      </button>
+      <app-back-button
+        label="Volver al listado"
+        (back)="cancelEditAndGoBack()"
+      />
     } @else {
-      <a routerLink="/disciples" class="inline-flex items-center px-4 py-2 bg-primary-fixed text-on-primary-fixed rounded-lg font-bold shadow-sm transition-all hover:bg-primary-fixed-dim">
-        <span class="material-symbols-outlined mr-2">arrow_back</span>
-        Volver al listado
-      </a>
+      <app-back-button
+        label="Volver al listado"
+        (back)="router.navigate(['/disciples'])"
+      />
     }
     <div class="flex items-center gap-3">
       @if (!isEditing()) {
-        <!-- Modo lectura: Eliminar + Editar -->
         <button
           type="button"
           (click)="showDeleteConfirm.set(true)"
@@ -58,7 +52,6 @@
           Editar
         </button>
       } @else {
-        <!-- Modo edición: Cancelar + Guardar cambios -->
         <button
           type="button"
           (click)="cancelEdit()"
@@ -82,32 +75,37 @@
   <div class="mb-8">
     <div class="flex flex-wrap items-center gap-3 mb-1">
       <h2 class="text-3xl font-bold text-on-surface">{{ fullName() }}</h2>
-      @if (d.isLeader) {
+      @if (d.isCellGroupLeader) {
         <div class="flex items-center gap-1 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-sm font-bold">
           <span class="material-symbols-outlined text-sm">verified</span>
-          Líder
+          Líder de Célula
+        </div>
+      }
+      @if (d.isTeacher) {
+        <div class="flex items-center gap-1 px-3 py-1 bg-warning/20 text-warning rounded-full text-sm font-bold">
+          <span class="material-symbols-outlined text-sm">school</span>
+          Profesor
+        </div>
+      }
+      @if (d.isCellGroupMember) {
+        <div class="flex items-center gap-1 px-3 py-1 bg-primary-fixed text-on-primary-fixed rounded-full text-sm font-bold">
+          <span class="material-symbols-outlined text-sm">groups</span>
+          Miembro de célula
         </div>
       }
     </div>
     <div class="flex items-center gap-2 mb-3">
       <span class="text-sm font-bold text-on-surface-variant uppercase tracking-wider">Nivel espiritual:</span>
-      <span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed rounded-full text-sm font-bold border border-primary/20">
-        {{ d.spiritualLevel | spiritualLevelLabel }}
-      </span>
+      <app-spiritual-level-badge [level]="d.spiritualLevel" />
     </div>
   </div>
 
-  <!-- Fila 1: Datos Personales + Estado Civil y Familia -->
+  <!-- Datos Personales + Estado Civil y Familia -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch mb-6">
 
-    <div class="md:col-span-2 p-8 bg-white rounded-2xl shadow-sm border border-outline-variant">
-      <h3 class="flex items-center gap-2 mb-6 text-xl font-bold text-primary border-b border-outline-variant pb-3">
-        <span class="material-symbols-outlined">person</span>
-        Datos Personales
-      </h3>
+    <app-detail-card title="Datos Personales" icon="person" class="md:col-span-2">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
 
-        <!-- MODIFICADO: cada campo alterna entre texto (lectura) e input (edición) -->
         <div class="space-y-1.5">
           <p class="text-xs font-bold uppercase tracking-wider text-on-surface">Nombres</p>
           @if (isEditing()) {
@@ -211,35 +209,38 @@
           }
         </div>
 
-        <!-- Próximo cumpleaños — siempre solo lectura -->
         <div class="space-y-1.5">
           <p class="text-xs font-bold uppercase tracking-wider text-on-surface">
             {{ nextBirthdayLabel() }}
           </p>
-          @switch (d.birthdayAlert | birthdayStatus) {
-            @case ('today') {
-              <span class="inline-flex items-center gap-1 px-3 py-1 bg-error/10 text-error rounded-full text-xs font-bold">
-                <span class="material-symbols-outlined text-sm">cake</span>
-                ¡Hoy es su cumpleaños!
-              </span>
+          @if (d.birthdayAlert) {
+            @switch (d.birthdayAlert | birthdayStatus) {
+              @case ('today') {
+                <span class="inline-flex items-center gap-1 px-3 py-1 bg-error/10 text-error rounded-full text-xs font-bold">
+                  <span class="material-symbols-outlined text-sm">cake</span>
+                  ¡Hoy es su cumpleaños!
+                </span>
+              }
+              @case ('tomorrow') {
+                <span class="inline-flex items-center gap-1 px-3 py-1 bg-warning/10 text-warning rounded-full text-xs font-bold">
+                  <span class="material-symbols-outlined text-sm">cake</span>
+                  ¡Mañana es su cumpleaños!
+                </span>
+              }
+              @case ('yesterday') {
+                <span class="inline-flex items-center gap-1 px-3 py-1 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold">
+                  <span class="material-symbols-outlined text-sm">cake</span>
+                  Fue ayer
+                </span>
+              }
+              @default {
+                <p class="text-sm font-medium text-on-surface-variant">
+                  Faltan {{ d.birthdayAlert.daysUntilNextBirthday }} días
+                </p>
+              }
             }
-            @case ('tomorrow') {
-              <span class="inline-flex items-center gap-1 px-3 py-1 bg-warning/10 text-warning rounded-full text-xs font-bold">
-                <span class="material-symbols-outlined text-sm">cake</span>
-                ¡Mañana es su cumpleaños!
-              </span>
-            }
-            @case ('yesterday') {
-              <span class="inline-flex items-center gap-1 px-3 py-1 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold">
-                <span class="material-symbols-outlined text-sm">cake</span>
-                Fue ayer
-              </span>
-            }
-            @default {
-              <p class="text-sm font-medium text-on-surface-variant">
-                Faltan {{ d.birthdayAlert.daysUntilNextBirthday }} días
-              </p>
-            }
+          } @else {
+            <p class="text-sm font-medium text-on-surface-variant">Sin fecha registrada</p>
           }
         </div>
 
@@ -260,15 +261,9 @@
         </div>
 
       </div>
-    </div>
+    </app-detail-card>
 
-    <div class="p-8 bg-white rounded-2xl shadow-sm border border-outline-variant">
-      <h3 class="flex items-center gap-2 mb-6 text-xl font-bold text-primary border-b border-outline-variant pb-3">
-        <span class="material-symbols-outlined">family_restroom</span>
-        Estado Civil y Familia
-      </h3>
-
-      <!-- MODIFICADO: estado civil alterna entre badge (lectura) y select (edición) -->
+    <app-detail-card title="Estado Civil y Familia" icon="family_restroom">
       <div class="mb-6 space-y-1.5">
         <p class="text-xs font-bold uppercase tracking-wider text-on-surface mb-2">Estado Civil</p>
         @if (isEditing()) {
@@ -308,7 +303,6 @@
         }
       </div>
 
-      <!-- AÑADIDO: nivel espiritual y liderazgo visibles solo en modo edición -->
       @if (isEditing()) {
         <div class="mb-6 space-y-1.5">
           <p class="text-xs font-bold uppercase tracking-wider text-on-surface mb-2">Nivel espiritual</p>
@@ -319,23 +313,31 @@
             <p class="text-sm font-bold text-on-surface">Liderazgo Activo</p>
             <p class="text-xs text-on-surface-variant">Indica si tiene una célula a cargo.</p>
           </div>
-          <label class="flex items-center cursor-pointer" [class.cursor-not-allowed]="!isLeaderToggleEnabled()">
-            <input
-              type="checkbox"
-              [ngModel]="editIsLeader()"
-              (ngModelChange)="editIsLeader.set($event)"
-              [disabled]="!isLeaderToggleEnabled()"
-              name="isLeader"
-              class="sr-only peer"
-            />
-            <div class="relative w-14 h-8 bg-white border-4 border-on-surface peer-checked:bg-primary peer-checked:border-primary-container rounded-full shadow-md transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:bg-on-surface after:rounded-full after:shadow-sm after:transition-all peer-checked:after:bg-white peer-checked:after:translate-x-6"></div>
-          </label>
+          <app-toggle
+            [(value)]="editIsCellGroupLeader"
+            [disabled]="!isCellGroupLeaderToggleEnabled()"
+          />
         </div>
-      }
 
-      <!-- Hijos — siempre solo lectura -->
-      <!-- Hijos: solo lectura en modo lectura, editable en modo edición -->
-      @if (isEditing()) {
+        @if (!isCellGroupLeaderToggleEnabled()) {
+          <p class="flex items-center gap-1.5 text-sm font-bold text-warning mb-4">
+            <span class="material-symbols-outlined text-lg">warning</span>
+            El liderazgo activo solo está disponible para el nivel Líder.
+          </p>
+        }
+
+        @if (isTeacherToggleEnabled()) {
+          <div class="mb-6 flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/20">
+            <div>
+              <p class="text-sm font-bold text-on-surface">Profesor Activo</p>
+              <p class="text-xs text-on-surface-variant">Indica si está activo como profesor en la Escuela de Líderes.</p>
+            </div>
+
+            <app-toggle [(value)]="editIsTeacher" />
+            
+          </div>
+        }
+
         <div class="mt-4">
           <p class="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">Hijos</p>
           <div class="space-y-3">
@@ -440,7 +442,6 @@
         }
       }
 
-      <!-- Padres — siempre solo lectura -->
       @if (d.parents && d.parents.length > 0) {
         <div class="mt-4">
           <p class="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">Padres</p>
@@ -461,34 +462,35 @@
           </div>
         </div>
       }
-    </div>
+    </app-detail-card>
 
   </div>
 
   <!-- Fila 2: Contacto + Invitado por -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
 
-    <div class="md:col-span-2 p-8 bg-white rounded-2xl shadow-sm border border-outline-variant">
-      <h3 class="flex items-center gap-2 mb-6 text-xl font-bold text-primary border-b border-outline-variant pb-3">
-        <span class="material-symbols-outlined">contact_page</span>
-        Contacto
-      </h3>
+    <app-detail-card title="Contacto" icon="contact_page" class="md:col-span-2">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
-        <!-- MODIFICADO: teléfono alterna entre link WhatsApp (lectura) y phone-input (edición) -->
         <div class="space-y-1.5">
           <p class="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">Celular / WhatsApp</p>
           @if (isEditing()) {
             <app-phone-input
               [(dialCode)]="editPhoneCodeNumber"
               [(phoneNumber)]="editPhoneNumber"
+              (validityChange)="editPhoneIsValid.set($event)"
+              (hasLettersChange)="editPhoneHasLetters.set($event)"
             />
             @if (fieldError('phoneNumber')) {
               <p class="text-xs font-bold text-error ml-1">{{ fieldError('phoneNumber') }}</p>
             }
           } @else {
             @if (d.phoneNumber) {
-              <a [href]="whatsappLink()" target="_blank" class="flex items-center gap-3 p-3 w-fit bg-secondary-container/30 border border-secondary/20 rounded-lg transition-all hover:bg-secondary-container/50">
+              
+              <a [href]="whatsappLink()"
+                target="_blank"
+                class="flex items-center gap-3 p-3 w-fit bg-secondary-container/30 border border-secondary/20 rounded-lg transition-all hover:bg-secondary-container/50"
+              >
                 <div class="flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(37,211,102,1)] text-white">
                   <span class="material-symbols-outlined text-2xl">chat</span>
                 </div>
@@ -503,7 +505,6 @@
           }
         </div>
 
-        <!-- MODIFICADO: dirección alterna entre texto (lectura) y textarea (edición) -->
         <div class="space-y-1.5">
           <p class="text-xs font-bold uppercase tracking-wider text-on-surface mb-2">Dirección Completa</p>
           @if (isEditing()) {
@@ -526,20 +527,15 @@
         </div>
 
       </div>
-    </div>
+    </app-detail-card>
 
-    <!-- Invitado por — siempre solo lectura -->
-    <div class="p-8 bg-white rounded-2xl shadow-sm border border-outline-variant">
-      <h3 class="flex items-center gap-2 mb-4 text-xl font-bold text-primary border-b border-outline-variant pb-3">
-        <span class="material-symbols-outlined">diversity_1</span>
-        Invitado por
-      </h3>
+    <app-detail-card title="Invitado por" icon="diversity_1">
       @if (d.invitedBy) {
         <p class="text-sm font-medium text-on-surface-variant">{{ d.invitedBy.firstName }} {{ d.invitedBy.lastName }}</p>
       } @else {
         <p class="text-sm font-medium text-on-surface-variant">Sin información registrada</p>
       }
-    </div>
+    </app-detail-card>
 
   </div>
 

@@ -14,7 +14,7 @@
   </button>
 
   @if (isOpen()) {
-    <div (mouseenter)="pauseSearchReset()" class="absolute z-20 mt-1 min-w-full w-max max-w-72 max-h-60 overflow-y-auto bg-white border border-outline-variant rounded-lg shadow-md">
+    <div (mouseenter)="pauseSearchReset()" class="absolute z-20 mt-1 min-w-full w-max max-w-72 max-h-40 overflow-y-auto bg-white border border-outline-variant rounded-lg shadow-md">
       @for (option of filteredOptions(); track $index) {
         <button
           type="button"

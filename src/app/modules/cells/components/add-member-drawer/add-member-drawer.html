@@ -1,0 +1,188 @@
+<!-- Overlay -->
+<div
+  class="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]"
+  (click)="close()"
+></div>
+
+<!-- Drawer -->
+<div class="fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 flex flex-col">
+
+  <!-- Header -->
+  <div class="px-6 py-5 flex items-start justify-between border-b border-outline-variant/20">
+    <div>
+      <h2 class="text-xl font-bold text-primary">
+        Añadir miembros a la célula
+        @if (cellName()) {
+          <span class="text-on-surface">"{{ cellName() }}"</span>
+        }
+      </h2>
+      <p class="text-sm text-on-surface-variant mt-1">
+        Selecciona los discípulos que deseas integrar.
+      </p>
+    </div>
+    <button
+      class="p-2 hover:bg-surface-container-high rounded-full transition-colors text-outline"
+      (click)="close()"
+    >
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <!-- Formulario de registro -->
+  @if (showRegisterForm()) {
+    <div class="flex-1 overflow-y-auto">
+      <app-disciple-form
+      [suppressSuccessToast]="true"
+      (closed)="showRegisterForm.set(false)"
+      (saved)="onDiscipleSaved($event)"
+      />
+    </div>
+  } @else {
+
+    <!-- Lista de añadidos -->
+    @if (addedMembers().length > 0) {
+      <div class="px-6 py-4 bg-primary/5 border-b border-outline-variant/20">
+        <p class="text-xs font-bold text-primary uppercase tracking-wider mb-3">
+          {{ addedMembers().length }} añadido{{ addedMembers().length > 1 ? 's' : '' }} en esta sesión
+        </p>
+        <div class="space-y-2">
+          @for (added of addedMembers(); track added.discipleId) {
+            <div class="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-outline-variant/30">
+              <span class="text-sm font-semibold text-on-surface">
+                {{ added.firstName }} {{ added.lastName }}
+              </span>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs text-on-surface-variant">Los 12</span>
+                  <app-toggle
+                    [value]="added.isCoreTwelve"
+                    (valueChange)="toggleCoreTwelve(added)"
+                  />
+                </div>
+                <button
+                  class="p-1.5 text-error hover:bg-error/10 rounded-full transition-colors"
+                  (click)="removeMember(added)"
+                >
+                  <span class="material-symbols-outlined text-[22px]">person_remove</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Búsqueda -->
+    <div class="px-6 py-4 border-b border-outline-variant/20">
+      <app-search-input
+        placeholder="Buscar por nombres o apellidos..."
+        [value]="searchQuery()"
+        (valueChange)="onSearchChange($event)"
+      />
+    </div>
+
+    <!-- Resultados -->
+    <div class="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+
+      @if (isLoading()) {
+        <div class="flex justify-center py-8">
+          <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+        </div>
+      } @else if (disciples().length === 0) {
+        <div class="flex flex-col items-center justify-center py-12 text-on-surface-variant">
+          <span class="material-symbols-outlined text-4xl mb-3 text-outline">person_off</span>
+          <p class="text-sm">No se encontraron discípulos</p>
+        </div>
+      } @else {
+        <p class="text-xs font-bold text-outline uppercase tracking-wider py-1">
+          {{ disciples().length }} discípulos
+        </p>
+        @for (disciple of disciples(); track disciple.id) {
+          <div
+            class="flex items-center justify-between p-3 bg-white rounded-xl border transition-all"
+            [class.opacity-50]="disciple.isCellGroupMember || isAlreadyAdded(disciple.id)"
+            [class.border-primary/30]="isAlreadyAdded(disciple.id)"
+            [class.bg-primary/5]="isAlreadyAdded(disciple.id)"
+            [class.border-outline-variant/50]="!isAlreadyAdded(disciple.id)"
+            [class.hover:border-primary/30]="!disciple.isCellGroupMember && !isAlreadyAdded(disciple.id)"
+            [class.hover:shadow-sm]="!disciple.isCellGroupMember && !isAlreadyAdded(disciple.id)"
+          >
+            <div>
+              <p class="text-sm font-semibold text-on-surface">
+                {{ disciple.firstName }} {{ disciple.lastName }}
+              </p>
+              <div class="flex items-center gap-2 mt-1">
+                <app-spiritual-level-badge [level]="disciple.spiritualLevel" />
+                @if (disciple.isCellGroupMember) {
+                  @if (currentMemberIds().includes(disciple.id)) {
+                    <span class="text-[10px] font-bold text-primary uppercase">En esta célula</span>
+                  } @else {
+                    <span class="text-[10px] font-bold text-outline uppercase">Ya en otra célula</span>
+                  }
+                }
+                @if (isAlreadyAdded(disciple.id)) {
+                  <span class="text-[10px] font-bold text-primary uppercase">Añadido</span>
+                }
+              </div>
+            </div>
+
+            @if (isAlreadyAdded(disciple.id)) {
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">
+                check_circle
+              </span>
+            } @else if (disciple.isCellGroupMember) {
+              <span class="material-symbols-outlined text-outline">check_circle</span>
+            } @else {
+              <button
+                class="flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant/50 text-primary hover:bg-primary/10 hover:border-primary transition-all disabled:opacity-50"
+                [disabled]="isAdding()"
+                (click)="addMember(disciple)"
+              >
+                <span class="material-symbols-outlined text-[22px]">person_add</span>
+              </button>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <!-- botón confirmar en lugar de cerrar -->
+    <div class="px-6 py-4 bg-white border-t border-outline-variant/20">
+      <div class="pt-4 pb-2 text-center border-t border-outline-variant/20 mt-4">
+        <p class="text-sm text-on-surface-variant mb-2">
+          ¿No encuentras al discípulo?
+        </p>
+        <button
+          class="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50"
+          (click)="showRegisterForm.set(true)"
+        >
+          <span class="material-symbols-outlined text-[18px]">
+            person_add
+          </span>
+          Registrar discípulo y añadir a la célula
+        </button>
+      </div>
+
+      @if (addedMembers().length > 0) {
+        <div class="pt-2">
+          <button
+            class="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50"
+            (click)="confirm()"
+          >
+            Confirmar ({{ addedMembers().length }} añadido{{ addedMembers().length > 1 ? 's' : '' }})
+          </button>
+        </div>
+
+      } @else {
+        <div class="pt-2 flex justify-center">
+          <button
+            class="px-6 py-2.5 rounded-full text-sm text-on-surface-variant transition-all hover:bg-error/20 hover:text-error active:scale-95 cursor-pointer"
+            (click)="confirm()"
+          >
+            Cerrar
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

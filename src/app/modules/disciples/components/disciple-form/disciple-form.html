@@ -240,17 +240,10 @@
             <span class="material-symbols-outlined text-primary text-sm">child_care</span>
             <h3 class="text-xs font-bold text-primary uppercase tracking-wider">Hijos</h3>
           </div>
-          <label class="flex items-center gap-3 cursor-pointer">
+          <div class="flex items-center gap-3">
             <span class="text-sm font-bold text-on-surface">¿Tiene hijos?</span>
-            <input
-              type="checkbox"
-              [ngModel]="hasChildren()"
-              (ngModelChange)="hasChildren.set($event)"
-              name="hasChildren"
-              class="sr-only peer"
-            />
-            <div class="relative w-14 h-8 bg-white border-4 border-on-surface peer-checked:bg-primary peer-checked:border-primary-container rounded-full shadow-md transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:bg-on-surface after:rounded-full after:shadow-sm after:transition-all peer-checked:after:bg-white peer-checked:after:translate-x-6"></div>
-          </label>
+            <app-toggle [(value)]="hasChildren" />
+          </div>
         </div>
 
         @if (hasChildren()) {
@@ -365,23 +358,33 @@
               <p class="text-sm text-on-surface-variant">Indica si el discípulo ya tiene una célula a cargo.</p>
             </div>
           </div>
-          <label class="flex items-center cursor-pointer" [class.cursor-not-allowed]="!isLeaderToggleEnabled()">
-            <input
-              type="checkbox"
-              [ngModel]="isLeader()"
-              (ngModelChange)="isLeader.set($event)"
-              [disabled]="!isLeaderToggleEnabled()"
-              name="isLeader"
-              class="sr-only peer"
+          <div class="flex items-center gap-2">
+            <app-toggle
+              [(value)]="isCellGroupLeader"
+              [disabled]="!isCellGroupLeaderToggleEnabled()"
             />
-            <div class="relative w-14 h-8 bg-white border-4 border-on-surface peer-checked:bg-primary peer-checked:border-primary-container rounded-full shadow-md transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:bg-on-surface after:rounded-full after:shadow-sm after:transition-all peer-checked:after:bg-white peer-checked:after:translate-x-6"></div>
-            @if (!isLeaderToggleEnabled()) {
-              <span class="material-symbols-outlined text-outline text-lg ml-2">lock</span>
+            @if (!isCellGroupLeaderToggleEnabled()) {
+              <span class="material-symbols-outlined text-outline text-lg">lock</span>
             }
-          </label>
+          </div>
         </div>
 
-        @if (!isLeaderToggleEnabled()) {
+        @if (isTeacherToggleEnabled()) {
+          <div class="flex items-center justify-between p-4 rounded-xl bg-primary/5 border-2 border-primary/60">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary">school</span>
+              <div>
+                <p class="text-sm font-bold text-on-surface">Profesor Activo</p>
+                <p class="text-sm text-on-surface-variant">Indica si el discípulo está activo como profesor en la Escuela de Líderes.</p>
+              </div>
+            </div>
+
+            <app-toggle [(value)]="isTeacher" />
+            
+          </div>
+        }
+
+        @if (!isCellGroupLeaderToggleEnabled()) {
           <p class="flex items-center gap-1.5 text-sm font-bold text-warning ml-1">
             <span class="material-symbols-outlined text-lg">warning</span>
             Solo disponible para los niveles Líder, Líder de Célula o Profesor de Escuela de Líderes.

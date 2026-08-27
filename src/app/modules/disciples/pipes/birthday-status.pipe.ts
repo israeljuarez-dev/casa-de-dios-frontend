@@ -8,7 +8,8 @@ export type BirthdayStatus = 'today' | 'tomorrow' | 'yesterday' | 'none';
   standalone: true,
 })
 export class BirthdayStatusPipe implements PipeTransform {
-  transform(alert: BirthdayAlertResponse): BirthdayStatus {
+  transform(alert: BirthdayAlertResponse | null): BirthdayStatus {
+     if (!alert) return 'none';
     if (alert.isToday) return 'today';
     if (alert.isTomorrow) return 'tomorrow';
     if (alert.wasYesterday) return 'yesterday';

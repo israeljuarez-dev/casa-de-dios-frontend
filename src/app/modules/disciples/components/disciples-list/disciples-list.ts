@@ -1,17 +1,16 @@
 import { 
+  ChangeDetectionStrategy,
   Component, 
   effect, 
   inject, 
   signal 
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { DisciplesService } from '@modules/disciples/services/disciples.service';
 import { SpiritualLevel } from '@modules/disciples/enums/disciple.enums';
 import { DiscipleResponse } from '@modules/disciples/types/disciple-response.types';
-import { SpiritualLevelLabelPipe } from '@modules/disciples/pipes/spiritual-level-label.pipe';
 import { ConfirmDialog } from '@shared/components/confirm-dialog/confirm-dialog';
-import { SpiritualLevelBadgeClassPipe } from '@modules/disciples/pipes/spiritual-level-badge.pipe';
 import { BirthdayStatusPipe } from '@modules/disciples/pipes/birthday-status.pipe';
 import { DiscipleForm } from '@modules/disciples/components/disciple-form/disciple-form';
 import { computed } from '@angular/core';
@@ -19,6 +18,14 @@ import { Select, SelectOption } from '@shared/components/select/select';
 import { SPIRITUAL_LEVEL_LABELS } from '@modules/disciples/pipes/spiritual-level-label.pipe';
 import { Gender } from '@core/types/gender.types';
 import { GENDER_LABELS } from '@modules/disciples/pipes/gender-label.pipe';
+import { CardActions } from '@shared/components/card-actions/card-actions';
+import { PrimaryButton } from '@shared/components/primary-button/primary-button';
+import { SpiritualLevelBadge } from '@shared/components/spiritual-level-badge/spiritual-level-badge';
+import { ExportExcelButton } from '@shared/components/export-excel-button/export-excel-button';
+import { PageHeader } from '@shared/components/page-header/page-header';
+import { SearchInput } from '@shared/components/search-input/search-input';
+import { Paginator } from '@shared/components/paginator/paginator';
+import { WhatsappButton } from '@shared/components/whatsapp-button/whatsapp-button';
 
 type ListViewState = 'error' | 'initialLoading' | 'empty' | 'ready';
 
@@ -26,43 +33,39 @@ const SEARCH_DEBOUNCE_MS = 400;
 
 @Component({
   selector: 'app-disciples-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule, 
-    RouterLink, 
-    SpiritualLevelLabelPipe,
-    SpiritualLevelBadgeClassPipe,
     BirthdayStatusPipe,
     ConfirmDialog,
     DiscipleForm,
-    Select
+    Select,
+    CardActions,
+    PrimaryButton,
+    SpiritualLevelBadge,
+    ExportExcelButton,
+    PageHeader,
+    SearchInput,
+    Paginator,
+    WhatsappButton
   ],
   templateUrl: './disciples-list.html',
   styleUrl: './disciples-list.css',
 })
 export class DisciplesList {
 
-  disciplesService = inject(DisciplesService);
+  private readonly disciplesService = inject(DisciplesService);
+  readonly router = inject(Router);
 
-  spiritualLevels = Object.values(SpiritualLevel);
-
-  disciples = this.disciplesService.disciples;
-  pagination = this.disciplesService.pagination;
-  isLoading = this.disciplesService.isLoading;
-  error = this.disciplesService.error;
-
-  firstNameFilter = signal('');
-  lastNameFilter = signal('');
+  firstNameFilter = signal<string>('');
+  lastNameFilter = signal<string>('');
   genderFilter = signal<Gender | ''>('');
   spiritualLevelFilter = signal<SpiritualLevel | ''>('');
   discipleToDelete = signal<DiscipleResponse | null>(null);
-
   formMode = signal<'create' | 'edit' | null>(null);
   editingDiscipleId = signal<number | undefined>(undefined);
-
   isExporting = signal<boolean>(false);
-
   searchFilter = signal<string>('');
-  private searchDebounceId: ReturnType<typeof setTimeout> | null = null
 
   viewState = computed<ListViewState>(() => {
     if (this.error()) return 'error';
@@ -70,6 +73,14 @@ export class DisciplesList {
     if (this.disciples().length === 0) return 'empty';
     return 'ready';
   });
+
+
+  private searchDebounceId: ReturnType<typeof setTimeout> | null = null
+  spiritualLevels = Object.values(SpiritualLevel);
+  disciples = this.disciplesService.disciples;
+  pagination = this.disciplesService.pagination;
+  isLoading = this.disciplesService.isLoading;
+  error = this.disciplesService.error;
 
   genderOptions: SelectOption<Gender | ''>[] = [
     { label: 'Género', value: '' },
@@ -83,6 +94,8 @@ export class DisciplesList {
       value: level,
     })),
   ];
+
+  readonly currentCriteria = this.disciplesService.currentCriteria;
 
   constructor() {
     // Selects: búsqueda inmediata al cambiar — un solo clic, sin riesgo de peticiones múltiples
@@ -116,7 +129,7 @@ export class DisciplesList {
   }
 
   goToPage(page: number): void {
-    this.preserveScrollPosition(() => this.disciplesService.goToPage(page));
+    this.disciplesService.goToPage(page);
   }
 
   formatShortDate(isoDate: string): string {
@@ -178,14 +191,14 @@ export class DisciplesList {
     if (!page) return [];
 
     const total = page.totalPages;
-    const current = page.currentPage;
+    const current = this.currentCriteria().page ?? 1;
     const neighbors = 1;
 
     const shown: number[] = [];
-    for (let i = 0; i < total; i++) {
-      const isFirst = i === 0;
-      const isLast = i === total - 1;
-      const isNearCurrent = i >= current - neighbors && i <= current + neighbors;
+    for (let i = 1; i <= total; i++) {
+      const isFirst = i === 1;
+      const isLast = i === total;
+      const isNearCurrent = i >= Math.max(1, current - neighbors) && i <= Math.min(total, current + neighbors);
       if (isFirst || isLast || isNearCurrent) {
         shown.push(i);
       }
@@ -206,24 +219,14 @@ export class DisciplesList {
   });
 
   goToFirstPage(): void {
-    this.preserveScrollPosition(() => this.disciplesService.goToPage(0));
+    this.disciplesService.goToPage(1);
   }
 
   goToLastPage(): void {
     const page = this.pagination();
     if (page) {
-      this.preserveScrollPosition(() => this.disciplesService.goToPage(page.totalPages - 1));
+      this.disciplesService.goToPage(page.totalPages);
     }
-  }
-
-  private preserveScrollPosition(action: () => void): void {
-    const scrollY = window.scrollY;
-    action();
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: scrollY });
-      });
-    });
   }
 
   exportExcel(): void {

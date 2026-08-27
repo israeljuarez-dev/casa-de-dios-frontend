@@ -1,4 +1,5 @@
 import { 
+  ChangeDetectionStrategy,
   Component, 
   ElementRef, 
   HostListener, 
@@ -27,6 +28,7 @@ const MONTH_LABELS = [
 
 @Component({
   selector: 'app-date-picker',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Select],
   templateUrl: './date-picker.html',
   styleUrl: './date-picker.css',
@@ -34,39 +36,36 @@ const MONTH_LABELS = [
 export class DatePicker {
   private elementRef = inject(ElementRef<HTMLElement>);
 
-  value = model<string>('');
   maxDate = input<string>('');
   minDate = input<string>('');
   placeholder = input<string>('dd/mm/aaaa');
   minYear = input<number>(1920);
 
-  isOpen = signal<boolean>(false);
-  weekdayLabels = WEEKDAY_LABELS;
+  value = model<string>('');
 
+  isOpen = signal<boolean>(false);
   private today = new Date();
   viewYear = signal<number>(this.today.getFullYear());
   viewMonth = signal<number>(0);
 
   monthOptions: SelectOption<number>[] = MONTH_LABELS.map((label, index) => ({ label, value: index }));
+    weekdayLabels = WEEKDAY_LABELS;
 
   yearOptions = computed<SelectOption<number>[]>(() => {
     const max = this.today.getFullYear();
     const min = this.minYear();
     const years: SelectOption<number>[] = [];
-    // Modificado: orden ascendente — años más antiguos arriba, más útil para discípulos mayores
     for (let year = min; year <= max; year++) {
       years.push({ label: String(year), value: year });
     }
     return years;
   });
-
   displayValue = computed(() => {
     const iso = this.value();
     if (!iso) return '';
     const [year, month, day] = iso.split('-');
     return `${day}/${month}/${year}`;
   });
-
   calendarDays = computed<CalendarDay[]>(() => {
     const year = this.viewYear();
     const month = this.viewMonth();
@@ -122,7 +121,6 @@ export class DatePicker {
   selectDay(day: CalendarDay): void {
     if (day.isDisabled) return;
     this.value.set(day.iso);
-    // NUEVO: ya no cerramos el calendario aquí, se queda abierto
   }
 
   selectToday(): void {

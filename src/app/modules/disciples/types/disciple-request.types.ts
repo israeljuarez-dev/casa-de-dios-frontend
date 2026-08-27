@@ -20,17 +20,18 @@ export interface DiscipleChildUpdateRequest {
 export interface DiscipleRegisterRequest {
   firstName: string;
   lastName: string;
-  birthDate: string;
+  birthDate: string | null;
   gender: Gender;
-  occupation: string;
+  occupation: string | null;
   phoneCodeNumber: string | null;
   phoneNumber: string | null; 
-  address: string;
-  dni: string;
+  address: string | null;
+  dni: string | null;
   maritalStatus: MaritalStatus;
   coupleName: string | null;
   spiritualLevel: SpiritualLevel;
-  isLeader: boolean;
+  isCellGroupLeader: boolean;
+  isTeacher: boolean; 
   children: DiscipleChildRegisterRequest[];
   invitedByDiscipleId: number | null;
 }
@@ -39,7 +40,7 @@ export interface DiscipleUpdateRequest {
   firstName: string;
   lastName: string;
   gender: Gender;
-  birthDate: string;
+  birthDate: string | null; 
   occupation: string;
   phoneCodeNumber: string | null;
   phoneNumber: string | null;
@@ -48,7 +49,8 @@ export interface DiscipleUpdateRequest {
   maritalStatus: MaritalStatus;
   coupleName: string | null;
   spiritualLevel: SpiritualLevel;
-  isLeader: boolean;
+  isCellGroupLeader: boolean;
+  isTeacher: boolean; 
   children: DiscipleChildUpdateRequest[];
 }
 

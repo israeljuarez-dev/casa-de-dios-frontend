@@ -1,0 +1,9 @@
+<button
+  type="button"
+  class="inline-flex items-center justify-center px-5 py-2.5 border-2 border-primary text-primary font-semibold rounded-xl transition-all hover:bg-primary/10 active:scale-95 disabled:opacity-50"
+  [disabled]="isLoading()"
+  (click)="clicked.emit()"
+>
+  <span class="material-symbols-outlined mr-2">download</span>
+  {{ isLoading() ? 'Exportando...' : 'Exportar Excel' }}
+</button>

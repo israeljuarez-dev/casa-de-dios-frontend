@@ -7,7 +7,6 @@ export interface PaginationCriteria {
 
 export interface PaginationResponse<T> {
   content: T[];
-  currentPage: number;
   pageSize: number;
   totalElements: number;
   totalPages: number;

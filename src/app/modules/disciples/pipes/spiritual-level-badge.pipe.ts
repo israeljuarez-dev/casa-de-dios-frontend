@@ -12,9 +12,7 @@ const SPIRITUAL_LEVEL_BADGE_CLASSES: Record<SpiritualLevel, string> = {
   [SpiritualLevel.LEADERSHIP_SCHOOL_4]: 'bg-school/15 text-school',
   [SpiritualLevel.LEADERSHIP_SCHOOL_5]: 'bg-school/15 text-school',
   [SpiritualLevel.LEADERSHIP_SCHOOL_6]: 'bg-school/15 text-school',
-  [SpiritualLevel.LEADERSHIP_SCHOOL_TEACHER]: 'bg-school/15 text-school',
   [SpiritualLevel.LEADER]: 'bg-error/15 text-error',
-  [SpiritualLevel.CELL_LEADER]: 'bg-error/15 text-error',
 };
 
 @Pipe({

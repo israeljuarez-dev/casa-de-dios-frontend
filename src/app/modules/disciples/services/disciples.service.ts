@@ -24,7 +24,7 @@ export class DisciplesService {
   private readonly disciplesApiService = inject(DisciplesApiService);
 
   private searchCriteria = signal<DiscipleSearchCriteria>({
-    page: 0,
+    page: 1,
     size: DEFAULT_PAGE_SIZE,
     sortField: 'lastName',
     sortDirection: 'ASC',
@@ -75,7 +75,7 @@ export class DisciplesService {
 
   private totalCountResource = httpResource<ApiResponse<PaginationResponse<DiscipleResponse>>>(() => ({
     url: this.endpoints.disciples.list,
-    params: { page: 0, size: 1 },
+    params: { page: 1, size: 1 },
   }));
 
   constructor() {
@@ -98,7 +98,7 @@ export class DisciplesService {
       firstName: undefined,
       lastName: undefined,
       ...filters,
-      page: 0,
+      page: 1,
     }));
   }
 

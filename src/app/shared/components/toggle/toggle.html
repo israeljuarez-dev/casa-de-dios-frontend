@@ -1,0 +1,13 @@
+<label
+  class="flex items-center cursor-pointer"
+  [class.cursor-not-allowed]="disabled()"
+  [class.opacity-50]="disabled()"
+>
+  <input
+    type="checkbox"
+    [(ngModel)]="value"
+    [disabled]="disabled()"
+    class="sr-only peer"
+  />
+  <div class="relative w-14 h-8 bg-white border-4 border-on-surface peer-checked:bg-primary peer-checked:border-primary-container rounded-full shadow-md transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:bg-on-surface after:rounded-full after:shadow-sm after:transition-all peer-checked:after:bg-white peer-checked:after:translate-x-6"></div>
+</label>

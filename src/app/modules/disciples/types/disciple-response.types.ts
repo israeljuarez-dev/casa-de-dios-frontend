@@ -37,8 +37,8 @@ export interface DiscipleResponse {
   id: number;
   firstName: string;
   lastName: string;
-   gender: Gender;
-  birthDate: string;
+  gender: Gender;
+  birthDate: string | null;
   age: number;
   occupation: string;
   phoneCodeNumber: string;
@@ -48,10 +48,12 @@ export interface DiscipleResponse {
   maritalStatus: MaritalStatus;
   coupleName: string | null;
   spiritualLevel: SpiritualLevel;
-  isLeader: boolean;
+  isCellGroupLeader: boolean;
+  isTeacher: boolean;
+  isCellGroupMember: boolean;
   hasChildren: boolean;
   children: DiscipleChildResponse[];
-  birthdayAlert: BirthdayAlertResponse;
+  birthdayAlert: BirthdayAlertResponse | null;
   invitedBy: DiscipleInviterResponse | null;
   parents: DiscipleParentResponse[];
 }

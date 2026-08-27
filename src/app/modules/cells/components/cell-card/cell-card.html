@@ -1,0 +1,63 @@
+<div
+  class="group w-full bg-white border-2 border-outline-variant rounded-xl shadow-md hover:shadow-xl hover:border-primary/50 hover:scale-[1.02] transition-all duration-200 overflow-hidden flex flex-col cursor-pointer"
+  (click)="view.emit()"
+>
+  <div class="p-5 flex-1">
+    <div class="flex items-center mb-4">
+      <h3 class="text-base font-extrabold text-primary leading-tight">
+        {{ cell().name }}
+      </h3>
+    </div>
+    <div class="space-y-2">
+      @if (cell().leader) {
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-bold text-on-surface">Líder:</span>
+          <span class="text-sm text-on-surface-variant">
+            {{ cell().leader!.firstName }} {{ cell().leader!.lastName }}
+          </span>
+        </div>
+      } @else {
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm text-outline">church</span>
+          <span class="text-xs text-on-surface-variant">Célula del Pastor</span>
+        </div>
+      }
+
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm text-outline">calendar_today</span>
+        @if (cell().meetingDay || cell().meetingTime) {
+          <span class="text-xs text-on-surface-variant">
+            {{ cell().meetingDay | meetingDayLabel }}
+            @if (cell().meetingTime) { · {{ cell().meetingTime }} }
+          </span>
+        } @else {
+          <span class="text-xs text-outline">Sin horario</span>
+        }
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm text-outline">location_on</span>
+        @if (cell().location) {
+          <span class="text-xs text-on-surface-variant line-clamp-1">{{ cell().location }}</span>
+        } @else {
+          <span class="text-xs text-outline">Sin ubicación</span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="px-5 py-3 bg-surface-container border-t-2 border-outline-variant/50 flex flex-col gap-2 items-center">
+    <span class="text-xs font-bold text-on-surface-variant">
+      @switch (cell().memberCount) {
+        @case (0) { No hay miembros registrados }
+        @case (1) { 1 miembro registrado }
+        @default { {{ cell().memberCount }} miembros registrados }
+      }
+    </span>
+    <app-card-actions
+      (view)="view.emit()"
+      (edit)="edit.emit()"
+      (delete)="delete.emit()"
+    />
+  </div>
+</div>

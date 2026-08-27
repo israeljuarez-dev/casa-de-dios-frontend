@@ -5,7 +5,7 @@ import { MaritalStatus, SpiritualLevel } from '@modules/disciples/enums/disciple
 const DRAFT_STORAGE_KEY = 'casa_de_dios_disciple_draft';
 
 // Incrementar este número cada vez que cambie la estructura del formulario
-const DRAFT_VERSION = 2;
+const DRAFT_VERSION = 3;
 
 export interface DiscipleDraftChild {
   firstName: string;
@@ -27,7 +27,8 @@ export interface DiscipleDraft {
   maritalStatus: MaritalStatus;
   coupleName: string;
   spiritualLevel: SpiritualLevel;
-  isLeader: boolean;
+  isCellGroupLeader: boolean;
+  isTeacher: boolean;    
   invitedByDiscipleId: number | null;
   invitedByLabel: string;
   hasChildren: boolean;

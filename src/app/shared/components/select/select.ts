@@ -1,4 +1,5 @@
 import { 
+  ChangeDetectionStrategy,
   Component, 
   ElementRef, 
   HostListener, 
@@ -20,6 +21,7 @@ const SEARCH_RESET_DELAY_MS = 2500;
 
 @Component({
   selector: 'app-select',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   templateUrl: './select.html',
   styleUrl: './select.css',
@@ -30,20 +32,19 @@ export class Select<T> {
 
   options = input.required<SelectOption<T>[]>();
   placeholder = input<string>('Selecciona una opción');
-  value = model<T | null>(null);
 
   isOpen = signal<boolean>(false);
   private searchQuery = signal<string>('');
 
+  value = model<T | null>(null);
+
   selectedOption = computed(() => {
     return this.options().find((option) => option.value === this.value()) ?? null;
   });
-
   selectedLabel = computed(() => {
     const found = this.selectedOption();
     return found?.compactLabel ?? found?.label ?? this.placeholder();
   });
-
   filteredOptions = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     if (!query) return this.options();

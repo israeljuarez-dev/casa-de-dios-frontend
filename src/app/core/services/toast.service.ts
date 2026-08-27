@@ -23,6 +23,18 @@ export class ToastService {
     setTimeout(() => this.dismiss(toast.id), TOAST_DURATION_MS);
   }
 
+  success(message: string): void {
+    this.show(message, 'success');
+  }
+
+  error(message: string): void {
+    this.show(message, 'error');
+  }
+
+  info(message: string): void {
+    this.show(message, 'info');
+  }
+
   dismiss(id: string): void {
     this.toastsSignal.update((current) => current.filter((t) => t.id !== id));
   }

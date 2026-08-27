@@ -1,0 +1,207 @@
+@if (isLoadingCell()) {
+  <div class="flex items-center justify-center py-16">
+    <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+  </div>
+} @else if (cell(); as c) {
+
+  <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
+    <div>
+      <app-back-button
+        label="Volver a Células"
+        (back)="goBack()"
+      />
+      <h1 class="text-3xl font-bold text-on-surface mt-2">{{ c.name }}</h1>
+      <div class="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 items-center">
+        @if (c.leader) {
+          <span class="text-xs font-bold uppercase tracking-wider text-on-surface shrink-0">Líder</span>
+          <span class="text-sm text-on-surface-variant">{{ c.leader.firstName }} {{ c.leader.lastName }}</span>
+        }
+        @if (c.meetingDay || c.meetingTime) {
+          <span class="text-xs font-bold uppercase tracking-wider text-on-surface shrink-0">Horario</span>
+          <span class="text-sm text-on-surface-variant">
+            {{ c.meetingDay | meetingDayLabel }}
+            @if (c.meetingTime) { · {{ c.meetingTime }} }
+          </span>
+        }
+        @if (c.location) {
+          <span class="text-xs font-bold uppercase tracking-wider text-on-surface shrink-0">Dirección</span>
+          <span class="text-sm text-on-surface-variant">{{ c.location }}</span>
+        }
+        @if (c.isPastorCell) {
+          <span class="col-span-2 inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 border border-yellow-300 px-2.5 py-0.5 rounded-full text-xs font-bold w-fit">
+            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+            Célula Principal
+          </span>
+        }
+      </div>
+    </div>
+    <app-primary-button
+      label="Añadir Miembro"
+      icon="person_add"
+      (clicked)="openAddMemberDrawer()"
+    />
+  </div>
+
+  <!-- Tabla de miembros -->
+  <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-outline-variant">
+
+    <!-- Filtros -->
+    <div class="flex flex-wrap items-center gap-4 p-4 border-b border-outline-variant/30">
+      <div class="flex-1 min-w-72">
+        <app-search-input
+          placeholder="Buscar por nombre o apellido..."
+          [value]="memberSearchFilter()"
+          (valueChange)="onSearchChange($event)"
+        />
+      </div>
+      <div class="min-w-45">
+        <app-select
+          [options]="spiritualLevelOptions"
+          [value]="memberSpiritualLevelFilter()"
+          (valueChange)="onSpiritualLevelChange($event)"
+        />
+      </div>
+      <div class="min-w-40">
+        <app-select
+          [options]="genderOptions"
+          [value]="memberGenderFilter()"
+          (valueChange)="onGenderChange($event)"
+        />
+      </div>
+    </div>
+
+    @if (isLoadingMembers()) {
+      <div class="flex items-center justify-center py-16">
+        <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+      </div>
+    } @else if (members().length === 0) {
+      <div class="flex flex-col items-center justify-center py-16 text-on-surface-variant">
+        <span class="material-symbols-outlined text-4xl mb-2">group_add</span>
+        <p class="text-sm">No se encontraron miembros.</p>
+      </div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-surface-container-low border-b border-outline-variant">
+            <tr>
+              <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center border-r border-outline-variant/30">N°</th>
+              <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center border-r border-outline-variant/30">Nombres</th>
+              <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center border-r border-outline-variant/30">Apellidos</th>
+              <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center border-r border-outline-variant/30">Teléfono</th>
+              <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center border-r border-outline-variant/30">Nivel</th>
+              <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center border-r border-outline-variant/30">Cumpleaños</th>
+              <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center border-r border-outline-variant/30">Los 12</th>
+              <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline-variant">
+            @for (member of members(); track member.memberId; let i = $index) {
+              <tr class="transition-colors hover:bg-surface-container-low/50">
+                <td class="px-6 py-4 text-sm text-center text-on-surface-variant border-r border-outline-variant/30">
+                  {{ i + 1 }}
+                </td>
+                <td class="px-6 py-4 text-sm text-center border-r border-outline-variant/30">
+                  {{ member.firstName }}
+                </td>
+                <td class="px-6 py-4 text-sm text-center border-r border-outline-variant/30">
+                  {{ member.lastName }}
+                </td>
+                <td class="px-6 py-4 text-center border-r border-outline-variant/30">
+                  <app-whatsapp-button
+                    [phoneCode]="member.phoneCodeNumber"
+                    [phoneNumber]="member.phoneNumber"
+                  />
+                </td>
+                <td class="px-6 py-4 text-center border-r border-outline-variant/30">
+                  <app-spiritual-level-badge [level]="member.spiritualLevel" />
+                </td>
+                <td class="px-6 py-4 text-center border-r border-outline-variant/30">
+                  @switch (member.birthdayAlert | birthdayStatus) {
+                    @case ('today') {
+                      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-white animate-birthday-pulse">
+                        <span class="material-symbols-outlined text-sm">cake</span>
+                        ¡HOY!
+                      </span>
+                    }
+                    @case ('tomorrow') {
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-error text-white">
+                        <span class="material-symbols-outlined text-sm">cake</span>
+                        ¡MAÑANA!
+                      </span>
+                    }
+                    @case ('yesterday') {
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-error/15 text-error">
+                        <span class="material-symbols-outlined text-sm">cake</span>
+                        Ayer
+                      </span>
+                    }
+                    @default {
+                      <span class="text-sm text-on-surface-variant">
+                        {{ member.birthdayAlert ? formatShortDate(member.birthdayAlert.nextBirthday) : '—' }}
+                      </span>
+                    }
+                  }
+                </td>
+                <td class="px-6 py-4 text-center border-r border-outline-variant/30">
+                  <app-toggle
+                    [value]="member.isCoreTwelve"
+                    (valueChange)="toggleCoreTwelve(member)"
+                  />
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      class="inline-flex items-center px-2 py-1 text-xs font-bold text-on-surface-variant rounded transition-colors hover:text-secondary hover:bg-secondary/15"
+                      (click)="openMoveDialog(member)"
+                    >
+                      <span class="material-symbols-outlined text-lg mr-1">sync_alt</span>
+                      Mover
+                    </button>
+                    <button
+                      class="inline-flex items-center px-2 py-1 text-xs font-bold text-on-surface-variant rounded transition-colors hover:text-error hover:bg-error/15"
+                      (click)="confirmRemoveMember(member)"
+                    >
+                      <span class="material-symbols-outlined text-lg mr-1">delete</span>
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}
+
+@if (showAddMemberDrawer()) {
+  <app-add-member-drawer
+    [cellId]="cellId()"
+    [cellName]="cell()?.name ?? ''"
+    [currentMemberIds]="members().map(m => m.discipleId)"
+    (closed)="closeAddMemberDrawer()"
+    (membersAdded)="onMemberAdded()"
+  />
+}
+
+@if (memberToMove()) {
+  <app-move-member-dialog
+    [cellId]="cellId()"
+    [member]="memberToMove()!"
+    (closed)="closeMoveDialog()"
+    (memberMoved)="onMemberMoved()"
+  />
+}
+
+@if (memberToRemove()) {
+  <app-confirm-dialog
+    [isOpen]="true"
+    title="¿Eliminar discípulo de la célula?"
+    message="Esta acción quitará al discípulo de esta célula. No se eliminarán sus datos personales."
+    confirmLabel="Eliminar discípulo"
+    [isLoading]="isRemoving()"
+    (confirmed)="executeRemoveMember()"
+    (cancelled)="cancelRemoveMember()"
+  />
+}

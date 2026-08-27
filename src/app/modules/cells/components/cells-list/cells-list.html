@@ -1,0 +1,114 @@
+<!-- Encabezado — mismo estilo que disciples-list -->
+<app-page-header
+  title="Células"
+  [subtitle]="(pagination()?.totalElements ?? 0) + ' células registradas en el sistema'"
+>
+  <app-export-excel-button
+    [isLoading]="isExporting()"
+    (clicked)="exportExcel()"
+  />
+  <button
+    type="button"
+    (click)="navigateToPastorCells()"
+    class="inline-flex items-center justify-center px-5 py-2.5 bg-yellow-100 text-yellow-700 border-2 border-yellow-300 font-semibold rounded-xl hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200"
+  >
+    <span class="material-symbols-outlined mr-2">church</span>
+    Células Principales
+  </button>
+  <app-primary-button
+    label="Nueva célula"
+    icon="add"
+    (clicked)="openCreateDrawer()"
+  />
+</app-page-header>
+
+<!-- Filtros -->
+<div class="bg-white rounded-xl shadow-sm overflow-hidden border border-outline-variant">
+  <div class="flex flex-wrap items-center gap-4 p-4 border-b border-outline-variant/30">
+    <div class="flex-1 min-w-50">
+      <app-search-input
+        placeholder="Buscar por nombre de célula..."
+        [value]="nameFilter()"
+        (valueChange)="nameFilter.set($event); applyFilters()"
+      />
+    </div>
+
+    <div class="flex-1 min-w-45">
+      <app-search-input
+        placeholder="Buscar por líder..."
+        icon="person"
+        [value]="leaderFilter()"
+        (valueChange)="leaderFilter.set($event); applyFilters()"
+      />
+    </div>
+
+    <div class="min-w-40">
+      <app-select
+        [options]="meetingDayOptions"
+        [value]="meetingDayFilter()"
+        (valueChange)="onMeetingDayChange($event)"
+      />
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  @if (isLoading()) {
+    <div class="flex items-center justify-center py-16">
+      <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+    </div>
+  }
+
+  <!-- Grid de células -->
+  @if (!isLoading()) {
+    @if (cells().length === 0) {
+      <div class="flex flex-col items-center justify-center py-16 text-on-surface-variant">
+        <span class="material-symbols-outlined text-4xl mb-2">home_work</span>
+        <p class="text-sm">No se encontraron células.</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
+        @for (cell of cells(); track cell.id) {
+          <app-cell-card
+            [cell]="cell"
+            (view)="navigateToDetail(cell.id)"
+            (edit)="openEditDrawer(cell)"
+            (delete)="confirmDelete(cell)"
+          />
+        }
+      </div>
+
+      <!-- Paginación — mismo estilo que disciples-list, base 1 -->
+      @if (pagination(); as page) {
+        <app-paginator
+          [totalPages]="page.totalPages"
+          [totalElements]="page.totalElements"
+          [currentPage]="currentCriteria().page ?? 1"
+          [pageSize]="currentCriteria().size ?? 10"
+          entityLabel="células"
+          (pageChange)="goToPage($event)"
+        />
+      }
+    }
+  }
+</div>
+
+<!-- Drawer de formulario -->
+@if (showFormDrawer()) {
+  <app-cell-form-drawer
+    [cellToEdit]="cellToEdit()"
+    (closed)="closeFormDrawer()"
+    (saved)="onFormSuccess()"
+  />
+}
+
+<!-- Modal de confirmación de eliminación -->
+@if (cellToDelete()) {
+  <app-confirm-dialog
+    [isOpen]="true"
+    [title]="'¿Eliminar célula?'"
+    [message]="'Se eliminará la célula ' + cellToDelete()!.name + '. Esta acción no se puede deshacer.'"
+    confirmLabel="Eliminar célula"
+    (confirmed)="executeDelete()"
+    (cancelled)="cancelDelete()"
+  />
+}

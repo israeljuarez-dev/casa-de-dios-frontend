@@ -6,7 +6,8 @@ import {
   model, 
   output,
   signal,
-  ElementRef
+  ElementRef,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Select, SelectOption } from '@shared/components/select/select';
@@ -15,6 +16,7 @@ import { CountryCode } from '@core/types/country-code.types';
 
 @Component({
   selector: 'app-phone-input',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule, 
     Select,
@@ -29,6 +31,8 @@ export class PhoneInput {
   hasReachedLimit = signal<boolean>(false);
 
   private letterWarningTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  readonly hasLettersChange = output<boolean>();
 
   dialCode = model<string>('51');
   phoneNumber = model<string>('');
@@ -113,13 +117,8 @@ export class PhoneInput {
     const nonDigitNonSpace = rawValue.replace(/[\d\s]/g, '');
     const hasInvalidChars = nonDigitNonSpace.length > 0;
 
-    if (hasInvalidChars) {
-      this.hasLetters.set(true);
-      if (this.letterWarningTimeoutId) clearTimeout(this.letterWarningTimeoutId);
-      this.letterWarningTimeoutId = setTimeout(() => this.hasLetters.set(false), 2000);
-    } else {
-      this.hasLetters.set(false);
-    }
+    this.hasLetters.set(nonDigitNonSpace.length > 0);
+    this.hasLettersChange.emit(hasInvalidChars); 
 
     if (digitsOnly.length > maxDigits) {
       this.hasReachedLimit.set(true);

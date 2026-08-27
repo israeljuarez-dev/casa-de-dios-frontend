@@ -1,0 +1,251 @@
+<div class="fixed inset-0 z-50 flex justify-end">
+  <div
+    class="absolute inset-0 bg-on-surface/60 backdrop-blur-sm"
+    (click)="close()"
+  ></div>
+
+  <div class="relative w-full max-w-2xl h-full bg-background shadow-md overflow-y-auto p-8 md:p-12">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-fixed text-primary">
+          <span class="material-symbols-outlined">
+            {{ isEditing() ? 'edit' : 'home_work' }}
+          </span>
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold text-primary">
+            {{ isEditing() ? 'Editar Célula' : 'Nueva Célula' }}
+          </h2>
+          <p class="text-sm text-on-surface-variant">
+            {{ isEditing() ? 'Modifica los datos de la célula.' : 'Ingresa los datos para registrar una célula.' }}
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="p-2 text-on-surface-variant rounded-full transition-colors hover:bg-surface-container-high hover:text-error"
+        (click)="close()"
+      >
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="space-y-10">
+
+      <!-- DATOS DE LA CÉLULA -->
+      <section class="space-y-4">
+        <div class="flex items-center gap-2 pb-2 border-b border-outline-variant">
+          <span class="material-symbols-outlined text-primary text-sm">home_work</span>
+          <h3 class="text-xs font-bold text-primary uppercase tracking-wider">Datos de la Célula</h3>
+        </div>
+
+        <!-- Nombre -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-bold text-on-surface ml-1">Nombre de la Célula</label>
+          <input
+            type="text"
+            class="w-full bg-white border border-outline-variant rounded-xl px-4 py-2.5 text-sm outline-none transition-all focus:ring-4 focus:border-primary focus:ring-primary/10"
+            placeholder="Ej. Manantial de Vida"
+            [ngModel]="name()"
+            (ngModelChange)="name.set($event)"
+          />
+        </div>
+
+        <!-- Toggle célula principal -->
+        @if (!isEditing()) {
+          <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl border border-outline-variant">
+            <div>
+              <p class="text-sm font-bold text-on-surface">Célula Principal del Pastor</p>
+              <p class="text-xs text-on-surface-variant mt-0.5">
+                Solo puede haber una por género (pastor/pastora)
+              </p>
+            </div>
+            <app-toggle [(value)]="isPastorCell" />
+          </div>
+        }
+
+        <!-- Género para célula principal -->
+        @if (isPastorCell() && !isEditing()) {
+          <div class="space-y-1.5">
+            <label class="text-sm font-bold text-on-surface ml-1">Género de la célula principal</label>
+            <div class="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                class="flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all hover:scale-[1.02] hover:shadow-sm"
+                [class.border-blue-400]="pastorCellGender() === Gender.MALE"
+                [class.bg-blue-100]="pastorCellGender() === Gender.MALE"
+                [class.text-blue-700]="pastorCellGender() === Gender.MALE"
+                [class.border-outline-variant]="pastorCellGender() !== Gender.MALE"
+                [class.text-on-surface-variant]="pastorCellGender() !== Gender.MALE"
+                [class.hover:bg-blue-50]="pastorCellGender() !== Gender.MALE"
+                (click)="pastorCellGender.set(Gender.MALE)"
+              >
+                <span class="material-symbols-outlined text-[18px]">man</span>
+                Pastor
+              </button>
+              <button
+                type="button"
+                class="flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all hover:scale-[1.02] hover:shadow-sm"
+                [class.border-pink-400]="pastorCellGender() === Gender.FEMALE"
+                [class.bg-pink-100]="pastorCellGender() === Gender.FEMALE"
+                [class.text-pink-700]="pastorCellGender() === Gender.FEMALE"
+                [class.border-outline-variant]="pastorCellGender() !== Gender.FEMALE"
+                [class.text-on-surface-variant]="pastorCellGender() !== Gender.FEMALE"
+                [class.hover:bg-pink-50]="pastorCellGender() !== Gender.FEMALE"
+                (click)="pastorCellGender.set(Gender.FEMALE)"
+              >
+                <span class="material-symbols-outlined text-[18px]">woman</span>
+                Pastora
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Líder -->
+        @if (!isPastorCell()) {
+          <div class="space-y-1.5">
+            <label class="text-sm font-bold text-on-surface ml-1">Líder de la célula</label>
+
+            @if (!selectedLeader()) {
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">
+                  search
+                </span>
+                <input
+                  type="text"
+                  class="w-full bg-white border border-outline-variant rounded-xl pl-11 pr-4 py-2.5 text-sm outline-none transition-all focus:ring-4 focus:border-primary focus:ring-primary/10"
+                  placeholder="Buscar líder por nombre..."
+                  [ngModel]="leaderSearchQuery()"
+                  (ngModelChange)="onLeaderSearchInput($event)"
+                />
+              </div>
+
+              @if (showLeaderResults()) {
+                <div class="border border-outline-variant rounded-xl overflow-hidden shadow-sm bg-white">
+                  @if (isLoadingLeaderSearch()) {
+                    <div class="flex justify-center py-4">
+                      <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  } @else if (leaderSearchResults().length === 0) {
+                    <p class="px-4 py-3 text-sm text-on-surface-variant">
+                      No se encontraron líderes
+                    </p>
+                  } @else {
+                    @for (leader of leaderSearchResults(); track leader.id) {
+                      <button
+                        type="button"
+                        class="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-container-low transition-colors text-left border-b border-outline-variant/20 last:border-0"
+                        (click)="selectLeader(leader)"
+                      >
+                        <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs shrink-0">
+                          {{ getInitials(leader.firstName, leader.lastName) }}
+                        </div>
+                        <div>
+                          <p class="text-sm font-semibold text-on-surface">
+                            {{ leader.firstName }} {{ leader.lastName }}
+                          </p>
+                          <p class="text-xs text-on-surface-variant">Líder</p>
+                        </div>
+                      </button>
+                    }
+                  }
+                </div>
+              }
+            } @else {
+              <div class="flex items-center gap-3 p-3 bg-white border border-outline-variant rounded-xl">
+                <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs shrink-0">
+                  {{ getInitials(selectedLeader()!.firstName, selectedLeader()!.lastName) }}
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-on-surface">
+                    {{ selectedLeader()!.firstName }} {{ selectedLeader()!.lastName }}
+                  </p>
+                  <p class="text-xs text-on-surface-variant">Líder</p>
+                </div>
+                <button
+                  type="button"
+                  class="p-1.5 text-on-surface-variant rounded-full transition-colors hover:bg-surface-container-high hover:text-error"
+                  (click)="clearLeader()"
+                >
+                  <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- HORARIO Y LUGAR -->
+      <section class="space-y-4">
+        <div class="flex items-center gap-2 pb-2 border-b border-outline-variant">
+          <span class="material-symbols-outlined text-primary text-sm">calendar_today</span>
+          <h3 class="text-xs font-bold text-primary uppercase tracking-wider">Horario y Lugar</h3>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="text-sm font-bold text-on-surface ml-1">Día de reunión</label>
+              <div class="w-full">
+                <app-select
+                  [options]="meetingDayOptions"
+                  [value]="meetingDay()"
+                  (valueChange)="onMeetingDayChange($event)"
+                />
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="text-sm font-bold text-on-surface ml-1">Hora de reunión</label>
+              <div class="w-full">
+                <app-time-picker
+                  [value]="meetingTime() || null"
+                  (valueChange)="meetingTime.set($event ?? '')"
+                />
+            </div>
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-bold text-on-surface ml-1">Ubicación / Dirección</label>
+          <textarea
+            class="w-full bg-white border border-outline-variant rounded-xl px-4 py-2.5 text-sm outline-none transition-all focus:ring-4 focus:border-primary focus:ring-primary/10 resize-none"
+            placeholder="Ej. Av. Libertad 450"
+            rows="3"
+            [ngModel]="location()"
+            (ngModelChange)="location.set($event)"
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- Botones -->
+      <div class="flex items-center gap-3 pt-2">
+        <button
+          type="button"
+          class="flex-1 px-6 py-2.5 rounded-xl border border-outline-variant text-sm font-semibold text-on-surface-variant hover:bg-surface-container-high transition-colors"
+          (click)="close()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="flex-2 px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:shadow-md hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50"
+          [disabled]="isSaving()"
+          (click)="save()"
+        >
+          @if (isSaving()) {
+            <span class="flex items-center justify-center gap-2">
+              <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              Guardando...
+            </span>
+          } @else {
+            {{ isEditing() ? 'Guardar cambios' : 'Guardar célula' }}
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

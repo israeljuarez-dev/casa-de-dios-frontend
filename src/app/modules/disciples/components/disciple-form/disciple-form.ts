@@ -1,4 +1,5 @@
 import { 
+  ChangeDetectionStrategy,
   Component, 
   computed, 
   effect, 
@@ -31,11 +32,14 @@ import { GENDER_LABELS } from '@modules/disciples/pipes/gender-label.pipe';
 import { Gender } from '@core/types/gender.types';
 import { SPIRITUAL_LEVEL_LABELS } from '@modules/disciples/pipes/spiritual-level-label.pipe';
 import { FormErrorMapperService } from '@shared/services/form-error-mapper.service';
+import { Toggle } from '@shared/components/toggle/toggle';
 
 const LEADER_ELIGIBLE_LEVELS: SpiritualLevel[] = [
+  SpiritualLevel.LEADER
+];
+
+const TEACHER_ELIGIBLE_LEVELS: SpiritualLevel[] = [
   SpiritualLevel.LEADER,
-  SpiritualLevel.CELL_LEADER,
-  SpiritualLevel.LEADERSHIP_SCHOOL_TEACHER,
 ];
 
 const DRAFT_SAVE_DEBOUNCE_MS = 500;
@@ -52,7 +56,8 @@ const FIELD_ERROR_MAP: Record<string, string> = {
   maritalStatus: 'Estado civil',
   coupleName: 'Nombre del cónyuge / pareja',
   spiritualLevel: 'Nivel espiritual',
-  isLeader: 'Liderazgo activo',
+  isCellGroupLeader: 'Liderazgo activo',
+  isTeacher: 'Profesor activo',
 };
 
 interface ChildFormRow {
@@ -66,12 +71,14 @@ interface ChildFormRow {
 
 @Component({
   selector: 'app-disciple-form',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule, 
     PhoneInput, 
     DatePicker, 
     InvitedByPicker,
     Select,
+    Toggle,
   ],
   templateUrl: './disciple-form.html',
   styleUrl: './disciple-form.css',
@@ -82,32 +89,13 @@ export class DiscipleForm {
   private toastService = inject(ToastService);
   private formErrorMapper = inject(FormErrorMapperService);
 
-  private draftSaveTimeoutId: ReturnType<typeof setTimeout> | null = null;
-
+  suppressSuccessToast = input<boolean>(false);
   id = input<number>();
 
   closed = output<void>();
   saved = output<DiscipleResponse>();
 
-  isEditMode = computed(() => this.id() !== undefined);
-
-  readonly todayIso = new Date().toISOString().split('T')[0];
-
-  spiritualLevels = Object.values(SpiritualLevel);
-  maritalStatuses = Object.values(MaritalStatus);
-
-  spiritualLevelOptions: SelectOption<SpiritualLevel>[] = this.spiritualLevels.map((level) => ({
-    label: SPIRITUAL_LEVEL_LABELS[level],
-    value: level,
-  }));
-
-  maritalStatusOptions: SelectOption<MaritalStatus>[] = this.maritalStatuses.map((status) => ({
-    label: MARITAL_STATUS_LABELS[status],
-    value: status,
-  }));
-
   isSaving = signal<boolean>(false);
-
   firstName = signal<string>('');
   lastName = signal<string>('');
   gender = signal<Gender>(Gender.MALE);
@@ -120,53 +108,67 @@ export class DiscipleForm {
   maritalStatus = signal<MaritalStatus>(MaritalStatus.SINGLE);
   coupleName = signal<string>('');
   spiritualLevel = signal<SpiritualLevel>(SpiritualLevel.GUEST);
-  isLeader = signal<boolean>(false);
+  isCellGroupLeader = signal<boolean>(false);
+  isTeacher = signal<boolean>(false);
   invitedByDiscipleId = signal<number | null>(null);
   invitedByLabel = signal<string>('');
   hasChildren = signal<boolean>(false);
   children = signal<ChildFormRow[]>([]);
-
   phoneIsValid = signal<boolean>(true);
-
   fieldErrors = signal<Record<string, string>>({});
+  dniHasLetters = signal<boolean>(false);
 
   dniIsValid = computed(() => {
     const value = this.dni();
     return value.length === 0 || value.length === 8;
   });
-
-  isLeaderToggleEnabled = computed(() => LEADER_ELIGIBLE_LEVELS.includes(this.spiritualLevel()));
-
+  isCellGroupLeaderToggleEnabled = computed(() => LEADER_ELIGIBLE_LEVELS.includes(this.spiritualLevel()));
+  isTeacherToggleEnabled = computed(() => TEACHER_ELIGIBLE_LEVELS.includes(this.spiritualLevel()));
   requiresCoupleName = computed(() =>
     this.maritalStatus() === MaritalStatus.MARRIED ||
     this.maritalStatus() === MaritalStatus.COHABITING
   );
-
   coupleNameLabel = computed(() =>
     this.maritalStatus() === MaritalStatus.COHABITING
       ? 'Nombre de la pareja'
       : 'Nombre del cónyuge'
   );
+  isEditMode = computed(() => this.id() !== undefined);
 
-  dniHasLetters = signal<boolean>(false);
-  private dniLetterWarningTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  readonly todayIso = new Date().toISOString().split('T')[0];
+  private draftSaveTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  spiritualLevels = Object.values(SpiritualLevel);
+  maritalStatuses = Object.values(MaritalStatus);
+  private previousSpiritualLevel: SpiritualLevel | null = null;
+
+  spiritualLevelOptions: SelectOption<SpiritualLevel>[] = this.spiritualLevels.map((level) => ({
+    label: SPIRITUAL_LEVEL_LABELS[level],
+    value: level,
+  }));
+
+  maritalStatusOptions: SelectOption<MaritalStatus>[] = this.maritalStatuses.map((status) => ({
+    label: MARITAL_STATUS_LABELS[status],
+    value: status,
+  }));
 
   genderOptions: SelectOption<Gender>[] = Object.values(Gender).map((g) => ({
     label: GENDER_LABELS[g],
     value: g,
   }));
 
-  private previousSpiritualLevel: SpiritualLevel | null = null;
-
   constructor() {
     effect(() => {
       const currentLevel = this.spiritualLevel();
       const levelJustChanged = this.previousSpiritualLevel !== null && this.previousSpiritualLevel !== currentLevel;
 
-      if (!this.isLeaderToggleEnabled()) {
-        this.isLeader.set(false);
-      } else if (levelJustChanged && currentLevel === SpiritualLevel.CELL_LEADER) {
-        this.isLeader.set(true);
+      if (!this.isCellGroupLeaderToggleEnabled()) {
+        this.isCellGroupLeader.set(false);
+      } else if (levelJustChanged && currentLevel === SpiritualLevel.LEADER) {
+        this.isCellGroupLeader.set(true);
+      }
+
+      if (!this.isTeacherToggleEnabled()) {
+        this.isTeacher.set(false);
       }
 
       this.previousSpiritualLevel = currentLevel;
@@ -187,7 +189,7 @@ export class DiscipleForm {
       this.firstName.set(d.firstName);
       this.lastName.set(d.lastName);
       this.gender.set(d.gender);
-      this.birthDate.set(d.birthDate);
+      this.birthDate.set(d.birthDate ?? '');
       this.dni.set(d.dni);
       this.occupation.set(d.occupation ?? '');
       this.phoneCodeNumber.set(d.phoneCodeNumber);
@@ -196,7 +198,8 @@ export class DiscipleForm {
       this.maritalStatus.set(d.maritalStatus);
       this.coupleName.set(d.coupleName ?? '');
       this.spiritualLevel.set(d.spiritualLevel);
-      this.isLeader.set(d.isLeader);
+      this.isCellGroupLeader.set(d.isCellGroupLeader);
+      this.isTeacher.set(d.isTeacher);
       this.hasChildren.set(d.hasChildren);
       this.children.set(
         d.children.map((child) => ({
@@ -227,7 +230,8 @@ export class DiscipleForm {
           maritalStatus: this.maritalStatus(),
           coupleName: this.coupleName(),
           spiritualLevel: this.spiritualLevel(),
-          isLeader: this.isLeader(),
+          isCellGroupLeader: this.isCellGroupLeader(),
+          isTeacher: this.isTeacher(),          
           invitedByDiscipleId: this.invitedByDiscipleId(),
           invitedByLabel: this.invitedByLabel(),
           hasChildren: this.hasChildren(),
@@ -288,6 +292,13 @@ export class DiscipleForm {
     }
   }
 
+  onDniInput(rawValue: string): void {
+    const digitsOnly = rawValue.replace(/\D/g, '');
+    this.dni.set(digitsOnly.slice(0, 8));
+
+    this.dniHasLetters.set(digitsOnly.length !== rawValue.length);
+  }
+
   private submitRegister(): void {
     const childrenPayload: DiscipleChildRegisterRequest[] = this.children().map((row) => ({
       firstName: row.firstName,
@@ -301,15 +312,16 @@ export class DiscipleForm {
       lastName: this.lastName(),
       birthDate: this.birthDate(),
       gender: this.gender(),
-      occupation: this.occupation(),
+      occupation: this.occupation().trim() || null,
       phoneCodeNumber: this.phoneNumber().trim() ? this.phoneCodeNumber() : null,
       phoneNumber: this.phoneNumber().trim() || null,
-      address: this.address(),
-      dni: this.dni(),
+      address: this.address().trim() || null,
+      dni: this.dni().trim() || null,
       maritalStatus: this.maritalStatus(),
       coupleName: this.requiresCoupleName() ? this.coupleName() : null,
       spiritualLevel: this.spiritualLevel(),
-      isLeader: this.isLeader(),
+      isCellGroupLeader: this.isCellGroupLeader(),
+      isTeacher: this.isTeacher(), 
       children: this.hasChildren() ? childrenPayload : [],
       invitedByDiscipleId: this.invitedByDiscipleId(),
     };
@@ -319,7 +331,9 @@ export class DiscipleForm {
         this.isSaving.set(false);
         this.draftService.clear();
         this.resetForm();
-        this.toastService.show('Discípulo registrado exitosamente', 'success');
+        if (!this.suppressSuccessToast()) {
+          this.toastService.show('Discípulo registrado exitosamente', 'success');
+        }
         this.saved.emit(response.data);
       },
       error: (httpError) => this.handleError(httpError),
@@ -348,7 +362,8 @@ export class DiscipleForm {
       maritalStatus: this.maritalStatus(),
       coupleName: this.requiresCoupleName() ? this.coupleName() : null,
       spiritualLevel: this.spiritualLevel(),
-      isLeader: this.isLeader(),
+      isCellGroupLeader: this.isCellGroupLeader(),
+      isTeacher: this.isTeacher(),
       children: this.hasChildren() ? childrenPayload : [],
     };
 
@@ -386,7 +401,8 @@ export class DiscipleForm {
     this.maritalStatus.set(MaritalStatus.SINGLE);
     this.coupleName.set('');
     this.spiritualLevel.set(SpiritualLevel.GUEST);
-    this.isLeader.set(false);
+    this.isCellGroupLeader.set(false);
+    this.isTeacher.set(false);
     this.invitedByDiscipleId.set(null);
     this.invitedByLabel.set('');
     this.hasChildren.set(false);
@@ -409,7 +425,8 @@ export class DiscipleForm {
     this.maritalStatus.set(draft.maritalStatus);
     this.coupleName.set(draft.coupleName);
     this.spiritualLevel.set(draft.spiritualLevel);
-    this.isLeader.set(draft.isLeader);
+    this.isCellGroupLeader.set(false);
+    this.isTeacher.set(draft.isTeacher);
     this.invitedByDiscipleId.set(draft.invitedByDiscipleId);
     this.invitedByLabel.set(draft.invitedByLabel);
     this.hasChildren.set(draft.hasChildren);
@@ -429,16 +446,5 @@ export class DiscipleForm {
     this.draftSaveTimeoutId = setTimeout(() => {
       this.draftService.save(snapshot);
     }, DRAFT_SAVE_DEBOUNCE_MS);
-  }
-
-  onDniInput(rawValue: string): void {
-    const digitsOnly = rawValue.replace(/\D/g, '');
-    this.dni.set(digitsOnly.slice(0, 8));
-
-    if (digitsOnly.length !== rawValue.length) {
-      this.dniHasLetters.set(true);
-      if (this.dniLetterWarningTimeoutId) clearTimeout(this.dniLetterWarningTimeoutId);
-      this.dniLetterWarningTimeoutId = setTimeout(() => this.dniHasLetters.set(false), 2000);
-    }
   }
 }

@@ -1,4 +1,5 @@
 import { 
+  ChangeDetectionStrategy,
   Component, 
   ElementRef, 
   HostListener, 
@@ -15,6 +16,7 @@ const MIN_SEARCH_LENGTH = 2;
 
 @Component({
   selector: 'app-invited-by-picker',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   templateUrl: './invited-by-picker.html',
   styleUrl: './invited-by-picker.css',
@@ -22,7 +24,6 @@ const MIN_SEARCH_LENGTH = 2;
 export class InvitedByPicker {
   private elementRef = inject(ElementRef<HTMLElement>);
   private disciplesService = inject(DisciplesService);
-  private debounceTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   discipleId = model<number | null>(null);
   discipleLabel = model<string>('');
@@ -30,10 +31,11 @@ export class InvitedByPicker {
   searchText = signal<string>('');
   isOpen = signal<boolean>(false);
 
+  displayValue = computed(() => (this.isOpen() ? this.searchText() : this.discipleLabel()));
+
   results = this.disciplesService.inviterSearchResults;
   isLoading = this.disciplesService.inviterSearchLoading;
-
-  displayValue = computed(() => (this.isOpen() ? this.searchText() : this.discipleLabel()));
+  private debounceTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   onFocus(): void {
     this.searchText.set(this.discipleLabel());

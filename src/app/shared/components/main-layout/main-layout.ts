@@ -1,4 +1,5 @@
 import { 
+  ChangeDetectionStrategy,
   Component, 
   computed, 
   inject, 
@@ -28,6 +29,7 @@ import { AuthService } from '@modules/auth/services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterOutlet, 
     RouterLink,
@@ -40,8 +42,18 @@ export class MainLayout {
 
   private readonly router = inject(Router);
   private readonly tokenService = inject(TokenService);
+  readonly authService = inject(AuthService);
 
-  authService = inject(AuthService);
+  showLogoutConfirm = signal<boolean>(false);
+
+  currentRoute = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+      startWith(this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
 
   navItems: NavItem[] = [
     { 
@@ -81,17 +93,6 @@ export class MainLayout {
       route: '/encounters' 
     },
   ];
-
-  currentRoute = toSignal(
-    this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd),
-      map((event) => event.urlAfterRedirects),
-      startWith(this.router.url)
-    ),
-    { initialValue: this.router.url }
-  );
-
-  showLogoutConfirm = signal<boolean>(false);
 
   requestLogout(): void {
     this.showLogoutConfirm.set(true);

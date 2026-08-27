@@ -1,18 +1,15 @@
 import { 
-  Component, 
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
   computed, 
   effect, 
   inject, 
   input,
   signal
 } from '@angular/core';
-import { 
-  ActivatedRoute, 
-  Router, 
-  RouterLink 
-} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DisciplesService } from '@modules/disciples/services/disciples.service';
-import { SpiritualLevelLabelPipe } from '@modules/disciples/pipes/spiritual-level-label.pipe';
 import { MaritalStatusLabelPipe } from '@modules/disciples/pipes/marital-status-label.pipe';
 import { ConfirmDialog } from '@shared/components/confirm-dialog/confirm-dialog';
 import { BirthdayStatusPipe } from '@modules/disciples/pipes/birthday-status.pipe';
@@ -29,11 +26,17 @@ import { DiscipleUpdateRequest } from '@modules/disciples/types/disciple-request
 import { FormErrorMapperService } from '@shared/services/form-error-mapper.service';
 import { FormsModule } from '@angular/forms';
 import { DisciplesApiService } from '@modules/disciples/services/disciples-api.service';
+import { BackButton } from '@shared/components/back-button/back-button';
+import { SpiritualLevelBadge } from '@shared/components/spiritual-level-badge/spiritual-level-badge';
+import { DetailCard } from '@shared/components/detail-card/detail-card';
+import { Toggle } from '@shared/components/toggle/toggle';
 
 const LEADER_ELIGIBLE_LEVELS: SpiritualLevel[] = [
+  SpiritualLevel.LEADER
+];
+
+const TEACHER_ELIGIBLE_LEVELS: SpiritualLevel[] = [
   SpiritualLevel.LEADER,
-  SpiritualLevel.CELL_LEADER,
-  SpiritualLevel.LEADERSHIP_SCHOOL_TEACHER,
 ];
 
 const FIELD_ERROR_MAP: Record<string, string> = {
@@ -48,7 +51,8 @@ const FIELD_ERROR_MAP: Record<string, string> = {
   maritalStatus: 'Estado civil',
   coupleName: 'Nombre del cónyuge / pareja',
   spiritualLevel: 'Nivel espiritual',
-  isLeader: 'Liderazgo activo',
+  isCellGroupLeader: 'Liderazgo activo',
+  isTeacher: 'Profesor activo',
 };
 
 interface EditChildRow {
@@ -62,9 +66,8 @@ interface EditChildRow {
 
 @Component({
   selector: 'app-disciple-detail',
-  imports: [
-    RouterLink, 
-    SpiritualLevelLabelPipe, 
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ 
     MaritalStatusLabelPipe,
     ConfirmDialog,
     BirthdayStatusPipe,
@@ -72,38 +75,30 @@ interface EditChildRow {
     DatePicker,
     PhoneInput,
     FormsModule,
+    SpiritualLevelBadge,
+    BackButton,
+    DetailCard,
+    Toggle,
   ],
   templateUrl: './disciple-detail.html',
   styleUrl: './disciple-detail.css',
 })
-export class DiscipleDetail {
+export class DiscipleDetail implements OnInit{
 
-  private disciplesService = inject(DisciplesService);
-  private disciplesApiService = inject(DisciplesApiService);
-  private toastService = inject(ToastService);
-  private formErrorMapper = inject(FormErrorMapperService);
-
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+  private readonly disciplesService = inject(DisciplesService);
+  private readonly disciplesApiService = inject(DisciplesApiService);
+  private readonly toastService = inject(ToastService);
+  private readonly formErrorMapper = inject(FormErrorMapperService);
+  private readonly route = inject(ActivatedRoute);
+  readonly router = inject(Router);
 
   id = input.required<string>();
 
-  disciple = this.disciplesService.disciple;
-
-  isLoading = this.disciplesService.isLoadingDisciple;
-
-  error = this.disciplesService.discipleError;
-
   showDeleteConfirm = signal<boolean>(false);
-
   showEditForm = signal<boolean>(false);
-
-
   isEditing = signal<boolean>(false);
   isSaving = signal<boolean>(false);
   fieldErrors = signal<Record<string, string>>({});
-
-  // Signals editables — se cargan al entrar en modo edición
   editFirstName = signal<string>('');
   editLastName = signal<string>('');
   editGender = signal<Gender>(Gender.MALE);
@@ -116,16 +111,76 @@ export class DiscipleDetail {
   editMaritalStatus = signal<MaritalStatus>(MaritalStatus.SINGLE);
   editCoupleName = signal<string>('');
   editSpiritualLevel = signal<SpiritualLevel>(SpiritualLevel.GUEST);
-  editIsLeader = signal<boolean>(false);
-
+  editIsCellGroupLeader = signal<boolean>(false);
+  editIsTeacher = signal<boolean>(false);
   editChildren = signal<EditChildRow[]>([]);
-
+  editPhoneIsValid = signal<boolean>(true);
   editDniHasLetters = signal<boolean>(false);
-  private editDniLetterWarningTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  editPhoneHasLetters = signal<boolean>(false);
 
-  // Snapshot para detectar si hubo cambios
-  private originalSnapshot = '';
+  isCellGroupLeaderToggleEnabled = computed(() =>
+    LEADER_ELIGIBLE_LEVELS.includes(this.editSpiritualLevel())
+  );
+  isTeacherToggleEnabled = computed(() =>
+    TEACHER_ELIGIBLE_LEVELS.includes(this.editSpiritualLevel())
+  );
+  requiresCoupleName = computed(() =>
+    this.editMaritalStatus() === MaritalStatus.MARRIED ||
+    this.editMaritalStatus() === MaritalStatus.COHABITING
+  );
+  coupleNameLabel = computed(() =>
+    this.editMaritalStatus() === MaritalStatus.COHABITING
+      ? 'Nombre de la pareja'
+      : 'Nombre del cónyuge'
+  );
+  fullName = computed(() => {
+    const d = this.disciple();
+    return d ? `${d.firstName} ${d.lastName}` : '';
+  });
+  formattedBirthDate = computed(() => {
+    const d = this.disciple();
+    if (!d || !d.birthDate) return '—';
+    
+    const months = [
+      'enero', 
+      'febrero', 
+      'marzo', 
+      'abril', 
+      'mayo', 
+      'junio',
+      'julio', 
+      'agosto', 
+      'septiembre', 
+      'octubre', 
+      'noviembre', 
+      'diciembre',
+    ];
 
+    const [year, month, day] = d.birthDate!.split('-');
+
+    return `${Number(day)} de ${months[Number(month) - 1]}, ${year} (${d.age} años)`;
+  });
+  genderDisplay = computed(() => {
+    const d = this.disciple();
+    if (!d) return '';
+    return d.gender === 'MALE' ? '🧔 Masculino' : '👩 Femenino';
+  });
+  nextBirthdayLabel = computed(() => {
+      const d = this.disciple();
+      if (!d || !d.birthdayAlert) return 'Próximo cumpleaños';
+      const nextBirthdayYear = new Date(d.birthdayAlert.nextBirthday).getFullYear();
+      return `Próximo cumpleaños (${nextBirthdayYear})`;
+  });
+  editDniIsValid = computed(() => {
+    const value = this.editDni();
+    return value.length === 0 || value.length === 8;
+  });
+
+  disciple = this.disciplesService.disciple;
+  isLoading = this.disciplesService.isLoadingDisciple;
+  error = this.disciplesService.discipleError;
+
+  private originalSnapshot: string = '';
   readonly todayIso = new Date().toISOString().split('T')[0];
 
   genderOptions: SelectOption<Gender>[] = Object.values(Gender).map((g) => ({
@@ -143,73 +198,7 @@ export class DiscipleDetail {
     value: l,
   }));
 
-  isLeaderToggleEnabled = computed(() =>
-    LEADER_ELIGIBLE_LEVELS.includes(this.editSpiritualLevel())
-  );
-
-  requiresCoupleName = computed(() =>
-    this.editMaritalStatus() === MaritalStatus.MARRIED ||
-    this.editMaritalStatus() === MaritalStatus.COHABITING
-  );
-
-  coupleNameLabel = computed(() =>
-    this.editMaritalStatus() === MaritalStatus.COHABITING
-      ? 'Nombre de la pareja'
-      : 'Nombre del cónyuge'
-  );
-
-  fullName = computed(() => {
-    const d = this.disciple();
-    return d ? `${d.firstName} ${d.lastName}` : '';
-  });
-
-  formattedBirthDate = computed(() => {
-    const d = this.disciple();
-    if (!d) return '';
-    
-    const months = [
-      'enero', 
-      'febrero', 
-      'marzo', 
-      'abril', 
-      'mayo', 
-      'junio',
-      'julio', 
-      'agosto', 
-      'septiembre', 
-      'octubre', 
-      'noviembre', 
-      'diciembre',
-    ];
-
-    const [year, month, day] = d.birthDate.split('-');
-
-    return `${Number(day)} de ${months[Number(month) - 1]}, ${year} (${d.age} años)`;
-  });
-
-  genderDisplay = computed(() => {
-    const d = this.disciple();
-    if (!d) return '';
-    return d.gender === 'MALE' ? '🧔 Masculino' : '👩 Femenino';
-  });
-
-  nextBirthdayLabel = computed(() => {
-    const d = this.disciple();
-    if (!d) return '';
-    const nextBirthdayYear = new Date(d.birthdayAlert.nextBirthday).getFullYear();
-    return `Próximo cumpleaños (${nextBirthdayYear})`;
-  });
-
-  editDniIsValid = computed(() => {
-    const value = this.editDni();
-    return value.length === 0 || value.length === 8;
-  });
-
   constructor() {
-    effect(() => {
-      this.disciplesService.selectDisciple(Number(this.id()));
-    });
-
     effect(() => {
       const d = this.disciple();
       const editParam = this.route.snapshot.queryParamMap.get('edit');
@@ -219,6 +208,10 @@ export class DiscipleDetail {
     });
   }
 
+  ngOnInit(): void {
+    this.disciplesService.selectDisciple(Number(this.id()));
+  }
+  
   enterEditMode(): void {
     const d = this.disciple();
     if (!d) return;
@@ -226,7 +219,7 @@ export class DiscipleDetail {
     this.editFirstName.set(d.firstName);
     this.editLastName.set(d.lastName);
     this.editGender.set(d.gender);
-    this.editBirthDate.set(d.birthDate);
+    this.editBirthDate.set(d.birthDate ?? '');
     this.editDni.set(d.dni ?? '');
     this.editOccupation.set(d.occupation ?? '');
     this.editPhoneCodeNumber.set(d.phoneCodeNumber ?? '51');
@@ -235,7 +228,8 @@ export class DiscipleDetail {
     this.editMaritalStatus.set(d.maritalStatus);
     this.editCoupleName.set(d.coupleName ?? '');
     this.editSpiritualLevel.set(d.spiritualLevel);
-    this.editIsLeader.set(d.isLeader);
+    this.editIsCellGroupLeader.set(d.isCellGroupLeader);
+    this.editIsTeacher.set(d.isTeacher);
 
     this.editChildren.set(
       d.children.map((child) => ({
@@ -249,11 +243,14 @@ export class DiscipleDetail {
     );
 
     this.fieldErrors.set({});
+    this.editDniHasLetters.set(false)
+     this.editPhoneHasLetters.set(false);
     this.originalSnapshot = this.buildSnapshot();
     this.isEditing.set(true);
   }
 
   cancelEdit(): void {
+    this.toastService.show('No se modificó ningún dato', 'info');
     this.isEditing.set(false);
     this.fieldErrors.set({});
   }
@@ -278,14 +275,10 @@ export class DiscipleDetail {
     ]);
   }
 
-  // AÑADIDO: elimina un hijo del array por su key
-  // si tenía id → el backend lo eliminará al no estar en la lista
   removeChild(key: string): void {
     this.editChildren.update((rows) => rows.filter((r) => r.key !== key));
   }
 
-  // AÑADIDO: actualiza un campo de un hijo específico por su key
-  // MODIFICADO: acepta null para ignorar emisiones vacías del select
   updateChildField(
     key: string,
     field: 'firstName' | 'lastName' | 'gender' | 'birthDate',
@@ -297,22 +290,36 @@ export class DiscipleDetail {
     );
   }
 
-  // AÑADIDO: error de un campo de un hijo por índice
   childFieldError(index: number, field: string): string {
     return this.fieldErrors()[`child.${index}.${field}`] ?? '';
   }
 
   saveEdit(): void {
+    if (!this.editDniIsValid()) {
+      this.toastService.show('El DNI debe tener exactamente 8 dígitos o dejarse vacío', 'error');
+      return;
+    }
+
+    if (this.editDniHasLetters()) {
+      this.toastService.show('El DNI contiene caracteres inválidos', 'error');
+      return;
+    }
+
+    if (this.editPhoneHasLetters()) {
+      this.toastService.show('El número de celular contiene caracteres inválidos', 'error');
+      return;
+    }
+
+    if (!this.editPhoneIsValid()) {
+      this.toastService.show('El número de celular no es válido', 'error');
+      return;
+    }
+
     const currentSnapshot = this.buildSnapshot();
 
     if (currentSnapshot === this.originalSnapshot) {
       this.toastService.show('No se modificó ningún dato', 'info');
       this.isEditing.set(false);
-      return;
-    }
-
-    if (!this.editDniIsValid()) {
-      this.toastService.show('El DNI debe tener exactamente 8 dígitos o dejarse vacío', 'error');
       return;
     }
 
@@ -335,7 +342,8 @@ export class DiscipleDetail {
       maritalStatus: this.editMaritalStatus(),
       coupleName: this.requiresCoupleName() ? this.editCoupleName() : null,
       spiritualLevel: this.editSpiritualLevel(),
-      isLeader: this.editIsLeader(),
+      isCellGroupLeader: this.editIsCellGroupLeader(),
+      isTeacher: this.editIsTeacher(), 
       children: this.editChildren().map((child) => ({
         id: child.id ?? undefined,
         firstName: child.firstName,
@@ -375,13 +383,14 @@ export class DiscipleDetail {
       maritalStatus: this.editMaritalStatus(),
       coupleName: this.editCoupleName(),
       spiritualLevel: this.editSpiritualLevel(),
-      isLeader: this.editIsLeader(),
+      isCellGroupLeader: this.editIsCellGroupLeader(),
+      isTeacher: this.editIsTeacher(),
       children: this.editChildren().map((c) => ({
         id: c.id,
         firstName: c.firstName,
         lastName: c.lastName,
         gender: c.gender,
-        birthDate: c.birthDate,
+        birthDate: c.birthDate ?? '',
       })),
     });
   }
@@ -404,6 +413,7 @@ export class DiscipleDetail {
   }
 
   formatChildBirthDate(isoDate: string): string {
+    if (!isoDate) return '—';
     const [year, month, day] = isoDate.split('-');
     return `${day}/${month}/${year}`;
   }
@@ -432,13 +442,6 @@ export class DiscipleDetail {
     const digitsOnly = rawValue.replace(/\D/g, '');
     this.editDni.set(digitsOnly.slice(0, 8));
 
-    if (digitsOnly.length !== rawValue.length) {
-      this.editDniHasLetters.set(true);
-      if (this.editDniLetterWarningTimeoutId) clearTimeout(this.editDniLetterWarningTimeoutId);
-      this.editDniLetterWarningTimeoutId = setTimeout(
-        () => this.editDniHasLetters.set(false),
-        2000
-      );
-    }
+    this.editDniHasLetters.set(digitsOnly.length !== rawValue.length);
   }
 }

@@ -17,10 +17,16 @@
           <button
             type="button"
             (click)="onConfirmClick()"
-            class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-error text-white text-sm font-bold rounded-lg shadow-sm transition-all active:scale-95 hover:opacity-90"
+            [disabled]="isLoading()"
+            class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-error text-white text-sm font-bold rounded-lg shadow-sm transition-all active:scale-95 hover:opacity-90 disabled:opacity-60"
           >
-            <span class="material-symbols-outlined text-sm">warning</span>
-            {{ confirmLabel() }}
+            @if (isLoading()) {
+              <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              Procesando...
+            } @else {
+              <span class="material-symbols-outlined text-sm">warning</span>
+              {{ confirmLabel() }}
+            }
           </button>
           <button
             type="button"

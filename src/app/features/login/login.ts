@@ -1,4 +1,5 @@
 import { 
+  ChangeDetectionStrategy,
   Component, 
   effect, 
   inject, 
@@ -11,6 +12,7 @@ import { TokenService } from '@core/auth/services/token.service';
 
 @Component({
   selector: 'app-login',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',

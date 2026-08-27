@@ -1,0 +1,32 @@
+<div class="flex justify-end gap-2">
+  @if (showView()) {
+    <button
+      type="button"
+      class="inline-flex items-center px-2 py-1 text-xs font-bold text-on-surface-variant rounded transition-colors hover:text-primary hover:bg-primary/15"
+      (click)="$event.stopPropagation(); view.emit()"
+    >
+      <span class="material-symbols-outlined text-lg mr-1">visibility</span>
+      {{ viewLabel() }}
+    </button>
+  }
+  @if (showEdit()) {
+    <button
+      type="button"
+      class="inline-flex items-center px-2 py-1 text-xs font-bold text-on-surface-variant rounded transition-colors hover:text-secondary hover:bg-secondary/15"
+      (click)="$event.stopPropagation(); edit.emit()"
+    >
+      <span class="material-symbols-outlined text-lg mr-1">edit</span>
+      {{ editLabel() }}
+    </button>
+  }
+  @if (showDelete()) {
+    <button
+      type="button"
+      class="inline-flex items-center px-2 py-1 text-xs font-bold text-on-surface-variant rounded transition-colors hover:text-error hover:bg-error/15"
+      (click)="$event.stopPropagation(); delete.emit()"
+    >
+      <span class="material-symbols-outlined text-lg mr-1">delete</span>
+      {{ deleteLabel() }}
+    </button>
+  }
+</div>

@@ -1,4 +1,5 @@
 import { 
+  ChangeDetectionStrategy,
   Component, 
   computed, 
   inject, 
@@ -27,6 +28,7 @@ interface BirthdayMock {
 
 @Component({
   selector: 'app-home',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   templateUrl: './home.html',
   styleUrl: './home.css',

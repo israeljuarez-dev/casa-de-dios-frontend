@@ -1,0 +1,11 @@
+<button
+  type="button"
+  class="inline-flex items-center justify-center px-6 py-2.5 bg-primary text-white font-semibold rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50"
+  [disabled]="disabled()"
+  (click)="$event.stopPropagation(); clicked.emit()"
+>
+  @if (icon()) {
+    <span class="material-symbols-outlined mr-2">{{ icon() }}</span>
+  }
+  {{ label() }}
+</button>
