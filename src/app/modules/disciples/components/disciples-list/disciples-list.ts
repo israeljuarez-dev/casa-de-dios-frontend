@@ -54,7 +54,7 @@ const SEARCH_DEBOUNCE_MS = 400;
 })
 export class DisciplesList {
 
-  private readonly disciplesService = inject(DisciplesService);
+  readonly disciplesService = inject(DisciplesService);
   readonly router = inject(Router);
 
   firstNameFilter = signal<string>('');
